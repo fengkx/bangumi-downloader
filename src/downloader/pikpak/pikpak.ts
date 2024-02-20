@@ -1,7 +1,7 @@
 import * as posixPath from "https://deno.land/std@0.216.0/path/posix/mod.ts";
 import * as crypto from "https://deno.land/std@0.177.0/node/crypto.ts";
 import ky, { BeforeRequestHook } from "npm:ky";
-import TTLCache from "npm:@isaacs/ttlcache";
+import { Sema } from "npm:async-sema";
 import { defu } from "npm:defu";
 import {
   PikPakAbout,
@@ -53,11 +53,7 @@ export class PikPakClient implements Downloader {
   private readonly pikpakUserHost: string;
   private captcha_token: string;
 
-  readonly _mkdirPromiseCache = new TTLCache({
-    ttl: 5 * 1000,
-    checkAgeOnGet: true,
-    noUpdateTTL: true,
-  });
+  private readonly _lock = new Map<string, Sema>();
 
   constructor(username: string, password: string) {
     this.clientId = "YUMx5nI8ZU8Ap8pm";
@@ -226,13 +222,16 @@ export class PikPakClient implements Downloader {
   }
   async listFiles(inParams?: PikpakRequestListFiles): Promise<PikpakFileList> {
     const defaultParams: PikpakRequestListFiles = {
-      filters: {
-        "trashed": { "eq": false },
-        "phase": { "eq": "PHASE_TYPE_COMPLETE" },
-      },
       "thumbnail_size": "SIZE_MEDIUM",
       with_audit: true,
+      filters: {
+        "trashed": { "eq": false },
+      },
     };
+
+    if (inParams?.filters?.phase === undefined) {
+      defaultParams.filters!.phase = { "eq": "PHASE_TYPE_COMPLETE" };
+    }
     const params: PikpakRequestListFiles = defu(inParams, defaultParams);
     const resp = await this.client.get(
       `${this.pikpakDriveHost}/drive/v1/files`,
@@ -242,14 +241,29 @@ export class PikPakClient implements Downloader {
     return json as PikpakFileList;
   }
 
+  private getLock(key: string) {
+    let lock = this._lock.get(key);
+    if (!lock) {
+      lock = new Sema(1, { capacity: 1000 });
+      this._lock.set(key, lock);
+    }
+    return lock!;
+  }
+
   async createFolder(inParams: Except<RequestCreateFolder, "kind">) {
+    const key = `createFolder:${inParams.name}:${inParams.parent_id}`;
+
+    const lock = this.getLock(key);
+    await lock.acquire();
     const resp = await this.client.post(
       `${this.pikpakDriveHost}/drive/v1/files`,
       {
         json: defu(inParams ?? {}, { kind: "drive#folder" }),
       },
     );
+
     const json = await resp.json() as { file: PikpakFolder };
+    lock.release();
     return json.file;
   }
   async getFileInfo(id: string): Promise<PikpakFile> {
@@ -272,39 +286,49 @@ export class PikPakClient implements Downloader {
   }
 
   async mkdirp(p: string): Promise<PikpakFolder> {
-    p = posixPath.normalize(p).replace(/^\//g, "");
-    const segments = p.split(posixPath.SEPARATOR);
+    const lock = this.getLock(`mkdirp:${p}`);
+    try {
+      await lock.acquire();
+      p = posixPath.normalize(p).replace(/^\//g, "");
+      const segments = p.split(posixPath.SEPARATOR);
 
-    let i = 0;
-    let parent = "";
-    let folder;
-    while (i < segments.length) {
-      const folderList = await this.listFiles({
-        parent_id: parent,
-        filters: { kind: { eq: "drive#folder" } },
-      });
+      let i = 0;
+      let parent = "";
+      let folder;
+      while (i < segments.length) {
+        const folderList = await this.listFiles({
+          parent_id: parent,
+          filters: { kind: { eq: "drive#folder" }, phase: null },
+        });
 
-      folder = folderList.files.find((folder) => folder.name === segments[i]);
+        folder = folderList.files.find((folder) => folder.name === segments[i]);
 
-      if (!folder) {
-        break;
+        if (!folder) {
+          break;
+        }
+
+        i++;
+        parent = folder.id;
+      }
+      if (i === segments.length && folder) {
+        return folder as PikpakFolder;
       }
 
-      i++;
-      parent = folder.id;
-    }
-    if (i === segments.length && folder) {
-      return folder as PikpakFolder;
-    }
+      for (; i < segments.length; i++) {
+        folder = await this.createFolder({
+          name: segments[i],
+          parent_id: parent,
+        });
+        parent = folder.id;
+      }
+      return folder! as PikpakFolder;
+    } catch (error) {
+      lock.release();
 
-    for (; i < segments.length; i++) {
-      folder = await this.createFolder({
-        name: segments[i],
-        parent_id: parent,
-      });
-      parent = folder.id;
+      throw error;
+    } finally {
+      lock.release();
     }
-    return folder! as PikpakFolder;
   }
 
   async getEntryByPath(
@@ -357,19 +381,13 @@ export class PikPakClient implements Downloader {
     folderPath: string,
     fileName = "",
   ) {
-    let folder;
-    folder = await this._mkdirPromiseCache.get(folderPath);
-    if (!folder) {
-      this._mkdirPromiseCache.set(folderPath, this.mkdirp(folderPath));
-      folder = await this._mkdirPromiseCache.get(folderPath);
-    }
+    const folder = await this.mkdirp(folderPath);
     const res = await this.offlineDownload({
       url: { url: resourceUrl },
       parent_id: folder.id,
       name: fileName,
     });
-    return {id: res.task.file_id, name: res.task.file_name};
-    
+    return { id: res.task.file_id, name: res.task.file_name };
   }
 
   static isPikaFile(obj: any): obj is PikpakFile {
