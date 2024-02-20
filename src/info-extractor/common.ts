@@ -6,6 +6,7 @@ type Resolution = {
 type SubtitleKind = "srt" | "ass" | "embedding" | 'unknown';
 
 export type ResourceInfo = {
+  version: string;
   cn_title: string;
   title: string;
   subtitle_source: string;

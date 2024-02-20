@@ -1,3 +1,4 @@
+import { RateLimit } from "npm:async-sema";
 import {
 BaseMessagePromptTemplateLike,
   ChatPromptTemplate,
@@ -8,6 +9,7 @@ import {
   HumanMessage,
 } from "npm:@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "npm:@langchain/google-genai";
+
 import { HarmBlockThreshold, HarmCategory } from "npm:@google/generative-ai";
 import { examples } from "./prompts.ts";
 import { Extractor } from "../common.ts";
@@ -16,6 +18,7 @@ import { BaseExtractor } from "../base-extractor.ts";
 export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
   chatPrompt: ChatPromptTemplate<any, any>;
+  private readonly _ratelimitter =  RateLimit(20, {timeUnit: 1000 * 60,});
   constructor(API_KEY: string) {
     super();
     this.model = new ChatGoogleGenerativeAI({
@@ -48,6 +51,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
   async getInfoFromTitle(title: string) {
     const prompt = await this.chatPrompt.formatMessages({title})
 
+    await this._ratelimitter()
     const r = await this.model.invoke(prompt);
     const result = JSON.parse(String(r.content))
     return result

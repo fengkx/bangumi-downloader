@@ -4,6 +4,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
   "input":
     "[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 23 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]",
     "output": {
+      version: '1',
         "cn_title": "葬送的芙莉莲",
         "title": "Sōsō no Frieren",
         "subtitle_source": "ANi",
@@ -17,6 +18,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
   "input":
     "[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 22 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]",
     "output": {
+      version: '1',
         "cn_title": "葬送的芙莉莲",
         "title": "Sōsō no Frieren",
         "subtitle_source": "ANi",
@@ -30,6 +32,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
   "input": "[GJ.Y] 海贼王 / One Piece - 1094 (B-Global 3840x2160 HEVC AAC MKV)",
   
     "output": {
+      version: '1',
       "cn_title": "海贼王",
       "title": "One Piece",
       "subtitle_source": "GJ.Y",
@@ -50,6 +53,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
         "subtitle_source": "OPFans枫雪动漫",
         "episode_number": 1092,
         "container_format": "mp4",
+        version: '1',
         "subtitle_lang": ["zh-Hans"],
         "resolution": { "width": 1920, "height": 1080 },
       },
@@ -58,7 +62,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "【喵萌奶茶屋】★01月新番★[福星小子 2022年版 / Urusei Yatsura 2022][27][1080p][繁日双语][招募翻译]",
     "output": {
         "cn_title": "福星小子",
-        "title": "Urusei Yatsura",
+        "title": "Urusei Yatsura",version: '1',
         "subtitle_source": "萌奶茶屋",
         "episode_number": 27,
         "container_format": "mp4",
@@ -72,6 +76,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "output": {
         "cn_title": "进击的巨人",
         "title": "Shingeki no Kyojin",
+        version: '1',
         "subtitle_source": "豌豆字幕组&LoliHouse",
         "episode_number": 86,
         "container_format": "mp4",
@@ -88,6 +93,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "subtitle_source": "极影字幕社",
     "episode_number": 28,
     subtitle_kind: 'embedding',
+    version: '1',
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hant"],
     "resolution": { "width": 1280, "height": 720 },
@@ -103,6 +109,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "container_format": "mkv",
     "subtitle_lang": ["zh-Hans"],
     "subtitle_kind": "embedding",
+    version: '1',
     "resolution": { "width": 1920, "height": 1080 },
   },
 }, {
@@ -112,6 +119,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "cn_title": "进击的巨人",
     "title": "Shingeki no Kyojin",
     "subtitle_source": "Skymoon-Raws",
+    version: '1',
     "episode_number": 21,
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hant"],
@@ -125,6 +133,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "cn_title": "进击的巨人最终季完结篇（后篇）",
     "title": "Shingeki no Kyojin：The Final Season - Kanketsu-hen",
     "subtitle_source": "拨雪寻春",
+    version: '1',
     "subtitle_kind": "embedding",
     episode_number: null,
     "subtitle_lang": ["zh-Hant", "ja"],
@@ -136,6 +145,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "[c.c动漫][1月新番][再得一胜!][01-13][合集][BIG5][1080P][MP4] [2.4GB] [复制磁连]",
   "output": {
     "cn_title": "再得一胜！",
+    version: '1',
     "title": "",
     "subtitle_source": "c.c动漫",
     "episode_number": "01-13",
@@ -153,6 +163,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "subtitle_source": "LoliHouse",
     "episode_number": null,
     "container_format": "mp4",
+    version: '1',
     "subtitle_lang": ["zh-Hans", "zh-Hant"],
     "resolution": { "width": 1920, "height": 1080 },
     "subtitle_kind": "embedding",
@@ -163,6 +174,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
   "output": {
     "cn_title": "Love Live! Superstar!!",
     "title": "Love Live! Superstar!!",
+    version: '1',
     "subtitle_source": "喵萌Production",
     "episode_number": "01-12",
     "container_format": "mp4",
@@ -180,6 +192,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "episode_number": null,
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hans", "ja"],
+    version: '1',
     "resolution": { "width": 3840, "height": 2160 },
     "subtitle_kind": "embedding",
   },
@@ -190,6 +203,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "cn_title": "剧场版 紫罗兰永恒花园",
     "title": "Violet Evergarden the Movie",
     "subtitle_source": "幻之字幕组",
+    version: '1',
     "episode_number": null,
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hans"],
@@ -200,6 +214,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "input":
     "[Skymoon-Raws] 无职转生，到了异世界就拿出真本事 / Mushoku Tensei - 23 [ViuTV][WEB-DL][1080p][AVC AAC][繁体外挂][MP4+ASS](正式版本) [294.1MB]",
   "output": {
+    version: 'final',
     "cn_title": "无职转生，到了异世界就拿出真本事",
     "title": "Mushoku Tensei",
     "subtitle_source": "Skymoon-Raws",
@@ -213,6 +228,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "input":
     "【澄空学园&动漫国字幕组】★年末特番[魔法科高中的劣等生 追忆篇][1080P][简体][MP4][v2] [1.2 GB]",
   "output": {
+    "version": '2',
     "cn_title": "魔法科高中的劣等生 追忆篇",
     "title": '',
     "subtitle_source": "澄空学园&动漫国字幕组",
@@ -226,6 +242,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "input":
     "[雷电字幕组]我的青春恋爱物语果然有问题（完）Yahari Ore no Seishun Lovecome wa Machigatte Iru. Kan【07】【简中】【1080P】 [292.1 MB]",
   "output": {
+    version: '1',
     "cn_title": "我的青春恋爱物语果然有问题（完）",
     "title": "Yahari Ore no Seishun Lovecome wa Machigatte Iru. Kan",
     "subtitle_source": "雷电字幕组",
@@ -244,6 +261,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     subtitle_kind: 'ass',
     "subtitle_source": "动漫国&KNA&轻之国度字幕组",
     "episode_number": 2,
+    version: '1',
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hans", "zh-Hant"],
     "resolution": { "width": 1920, "height": 1080 },
@@ -259,6 +277,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "episode_number": "01~02",
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hant"],
+    version: '1',
     "resolution": { "width": 1920, "height": 1080 },
   },
 }, {
@@ -269,6 +288,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "title": "ReLIFE",
     subtitle_kind: 'unknown',
     "subtitle_source": "DHR动研字幕组&茉语星梦",
+    version: '1',
     "episode_number": "14-17",
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hant"],
@@ -281,6 +301,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
     "cn_title": "多啦A梦大电影: 大雄与翼之勇者",
     "title": "Nobita to Tsubasa no Yuushatachi",
     "subtitle_source": "jibaketa合成&音频压制",
+    version: '1',
     "episode_number": null,
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hant"],
@@ -294,6 +315,7 @@ export const examples: Array<{input: string; output: ResourceInfo}> = [{
         subtitle_kind: 'ass',
         "cn_title": "青之驱魔师 岛根启明结社篇",
         "title": "Ao no Exorcist Shimane Illuminati-hen",
+        version: '1',
         "subtitle_source": "豆字幕组&LoliHouse",
         "episode_number": 7,
         "container_format": "mp4",

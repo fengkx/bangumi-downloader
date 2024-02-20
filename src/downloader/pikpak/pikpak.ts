@@ -266,7 +266,6 @@ export class PikPakClient implements Downloader {
   async mkdirp(p: string): Promise<PikpakFolder> {
     p = posixPath.normalize(p).replace(/^\//g, "");
     const segments = p.split(posixPath.SEPARATOR);
-    console.log(segments)
 
     let i = 0;
     let parent = "";
@@ -342,8 +341,7 @@ export class PikPakClient implements Downloader {
 
   async  downLoadToPath(resourceUrl: string, folderPath: string, fileName = ''): Promise<void> {
     const folder = await this.mkdirp(folderPath);
-    console.log(folder)
-    this.offlineDownload({
+    await this.offlineDownload({
       url: {url: resourceUrl},
       parent_id: folder.id,
       name: fileName

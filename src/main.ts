@@ -44,6 +44,7 @@ if (import.meta.main) {
 
     const app = new App(mikan, gemini, pikpak)
     await app.run(feedUrl)
+    console.log("MAINEND")
     
   } catch (error) {
     console.error(error)
