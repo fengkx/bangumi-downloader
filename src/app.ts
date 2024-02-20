@@ -67,7 +67,6 @@ export class App {
   }
 
   async doOne(episode: EpisodeWithRsourceInfo) {
-    console.info(`Downloading ${episode.title}`);
     
     const folderName = this.infoExtractor.makeFolderName(episode);
     const id = this.infoExtractor.getId(episode);
@@ -76,6 +75,7 @@ export class App {
       // get resoultion or other...
       console.log(`Already existed Skip downoading ${media.name}`)
     } else {
+      console.info(`Downloading ${episode.title}`);
       const {id: file_id, name} = await this.downloader.downLoadToPath(episode.torrent.url, folderName);
       await this.storage.setMediaItemById(id, {file_id, name});
     }

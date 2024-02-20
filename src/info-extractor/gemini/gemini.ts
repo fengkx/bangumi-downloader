@@ -55,13 +55,18 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
     }
     const prompt = await this.chatPrompt.formatMessages({ title });
 
-    await this._ratelimitter();
-    const r = await retry(async (b) => {
+    const r = await retry(async (b, attempt) => {
+      await this._ratelimitter();
       console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);
-      const result = JSON.parse(String(r.content));
+      const result = JSON.parse(String(r.content)) as ResourceInfo;
+      if(result.cn_title && !title.includes(result.cn_title) && attempt < 5) {
+        throw new Error(`${result.cn_title} is not existed in ${title}`)
+      }
       return result;
-    }, { retries: 2 });
+    }, { retries: 5, onRetry(e, attempt) {
+      console.info(`[Retries ${attempt}] extracting Cause: ${e.message}`)
+    }, });
     await this.storage?.cacheSet(key, r);
     return r;
   }

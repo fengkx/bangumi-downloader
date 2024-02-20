@@ -13,6 +13,7 @@
       "npm:ky": "npm:ky@1.2.0",
       "npm:kysely": "npm:kysely@0.27.2",
       "npm:kysely@^0.27.2": "npm:kysely@0.27.2",
+      "npm:simplecc-wasm": "npm:simplecc-wasm@0.1.5",
       "npm:type-fest": "npm:type-fest@4.10.2"
     },
     "npm": {
@@ -192,6 +193,10 @@
       },
       "retry@0.13.1": {
         "integrity": "sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==",
+        "dependencies": {}
+      },
+      "simplecc-wasm@0.1.5": {
+        "integrity": "sha512-cf7QTS/ubpNH4Nk4YiSvlRgMSirpg2bj7NLPV6GqZewz5uHljea4XCGB3DriNh1QgmjIjpbA0pt34cN+MDO6BQ==",
         "dependencies": {}
       },
       "type-fest@4.10.2": {
