@@ -1,13 +1,13 @@
-export type FileList = {
+export type PikpakFileList = {
   kind: "drive#fileList";
   next_page_token: string;
-  files: Array<File | Folder>;
+  files: Array<PikpakFile | PikpakFolder>;
   version: string;
   version_outdated: boolean;
   sync_time: string;
 };
 
-export type Folder = {
+export type PikpakFolder = {
   kind: "drive#folder";
   id: string;
   parent_id: string;
@@ -50,7 +50,7 @@ export type Folder = {
   reference_resource: null;
 };
 
-export type File = {
+export type PikpakFile = {
   kind: "drive#file";
   id: string;
   parent_id: string;
@@ -98,7 +98,7 @@ export type File = {
 
 type FiltersObj = Record<string, unknown>;
 type ThumbnailSizeEnum = "SIZE_MEDIUM";
-export type RequestListFiles = Partial<{
+export type PikpakRequestListFiles = Partial<{
   parent_id: string; // 父文件夹id, 默认列出根目录
   limit: number; // 数量
   page_token: string; // 页面id
@@ -111,4 +111,68 @@ export type RequestCreateFolder = {
   kind: "drive#folder";
   name: string;
   parent_id?: string;
+};
+
+
+type PikpakQuota = {
+  kind: string;
+  limit: string;
+  usage: string;
+  usage_in_trash: string;
+  play_times_limit: string;
+  play_times_usage: string;
+  is_unlimited: boolean;
+};
+
+export type PikPakAbout = {
+  kind: string;
+  quota: PikpakQuota;
+  expires_at: string;
+  quotas: Record<string, unknown>;
+};
+
+export type RequestOfflineDownload = {
+  kind: "drive#file";
+  upload_type: 'UPLOAD_TYPE_URL';
+  url: {url: string};
+  name?: string;
+  folder_type?: string;
+  parent_id?: string;
+}
+
+
+type UploadType = "UPLOAD_TYPE_URL";
+
+export type PikpakDownloadTask = {
+  upload_type: UploadType;
+  url: {
+    kind: "upload#url";
+  };
+  file: null;
+  task: {
+    kind: "drive#task";
+    id: string;
+    name: string;
+    type: string;
+    user_id: string;
+    statuses: unknown[];
+    status_size: number;
+    params: {
+      predict_speed: string;
+      predict_type: string;
+    };
+    file_id: string;
+    file_name: string;
+    file_size: string;
+    message: string;
+    created_time: string;
+    updated_time: string;
+    third_task_id: string;
+    // phase: "PHASE_TYPE_RUNNING";
+    progress: number;
+    icon_link: string;
+    callback: string;
+    reference_resource: null;
+    space: string;
+  };
 };

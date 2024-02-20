@@ -1,15 +1,26 @@
-import ky, { BeforeRequestHook } from "https://esm.sh/ky";
+import * as posixPath from "https://deno.land/std@0.216.0/path/posix/mod.ts";
 import * as crypto from "https://deno.land/std@0.177.0/node/crypto.ts";
+import ky, { BeforeRequestHook } from "npm:ky";
 import { defu } from "npm:defu";
-import { RequestListFiles } from "./pikpak-types.ts";
+import {
+  PikPakAbout,
+  PikpakFile,
+  PikpakFileList,
+  PikpakFolder,
+  PikpakRequestListFiles,
+  RequestOfflineDownload,
+} from "./pikpak-types.ts";
 import { RequestCreateFolder } from "./pikpak-types.ts";
-import type { SetOptional } from "npm:type-fest";
+import type { Except, SetOptional } from "npm:type-fest";
+import { PikPakErrorResponse } from "./errors.ts";
+import { PikpakError } from "./errors.ts";
+import { PikpakDownloadTask } from "./pikpak-types.ts";
 export class PikPakClient {
-  clientId: string;
-  clientSecret: string;
-  package_name: string;
-  client_version: string;
-  algoObjects: readonly [
+  private clientId: string;
+  private clientSecret: string;
+  private package_name: string;
+  private client_version: string;
+  private algoObjects: readonly [
     { readonly alg: "md5"; readonly salt: "mg3UtlOJ5/6WjxHsGXtAthe" },
     { readonly alg: "md5"; readonly salt: "kRG2RIlL/eScz3oDbzeF1" },
     {
@@ -28,21 +39,21 @@ export class PikPakClient {
       readonly salt: "S4/mRgYpWyNGEUxVsYBw8n//zlywe5Ga1R8ffWJSOPZnMqWb4w";
     },
   ];
-  pikpakDriveHost: string;
-  username: string;
-  password: string;
-  access_token: string;
-  refresh_token: string;
-  sub: string;
-  deviceId: string;
-  client: typeof ky;
-  pikpakUserHost: string;
-  captcha_token: string;
+  private pikpakDriveHost: string;
+  private username: string;
+  private password: string;
+  private access_token: string;
+  private refresh_token: string;
+  private sub: string;
+  private deviceId: string;
+  public readonly client: typeof ky;
+  private readonly pikpakUserHost: string;
+  private captcha_token: string;
   constructor(username: string, password: string) {
     this.clientId = "YUMx5nI8ZU8Ap8pm";
     this.clientSecret = "dbw2OtmVEeuUvIptb1Coygx";
     this.pikpakUserHost = "https://user.mypikpak.com";
-    this.pikpakDriveHost = "https://api-drive.mypikpak.com";
+    this.pikpakDriveHost = "https://api-drive.mypikpak.com" as const;
     this.package_name = "mypikpak.com";
     this.captcha_token = "";
     this.client_version = "1.0.0";
@@ -91,7 +102,7 @@ export class PikPakClient {
             );
             const url = new URL(request.url);
             if (
-              request.method !== "GET" && url.pathname.startsWith("/drive/v1")
+              url.pathname.startsWith("/drive/v1")
             ) {
               await this.getcaptcha_token("POST:" + url.pathname);
             }
@@ -105,6 +116,18 @@ export class PikPakClient {
               );
           },
         ] as BeforeRequestHook[],
+        beforeError: [
+          async (httpErr) => {
+            const { response } = httpErr;
+            if (response && response.body) {
+              const errorResponse = await response
+                .json() as PikPakErrorResponse;
+              const error = new PikpakError(httpErr, errorResponse);
+              return error;
+            }
+            return httpErr;
+          },
+        ],
       },
     });
   }
@@ -191,8 +214,8 @@ export class PikPakClient {
       throw new Error("Failed to obtain captcha token");
     }
   }
-  async listFiles(inParams?: RequestListFiles) {
-    const defaultParams: RequestListFiles = {
+  async listFiles(inParams?: PikpakRequestListFiles): Promise<PikpakFileList> {
+    const defaultParams: PikpakRequestListFiles = {
       filters: {
         "trashed": { "eq": false },
         "phase": { "eq": "PHASE_TYPE_COMPLETE" },
@@ -200,24 +223,128 @@ export class PikPakClient {
       "thumbnail_size": "SIZE_MEDIUM",
       with_audit: true,
     };
-    const params: RequestListFiles = defu(inParams, defaultParams);
-    await this.getcaptcha_token("GET:/drive/v1/files/");
+    const params: PikpakRequestListFiles = defu(inParams, defaultParams);
     const resp = await this.client.get(
       `${this.pikpakDriveHost}/drive/v1/files`,
       { searchParams: { ...params, filters: JSON.stringify(params.filters) } },
     );
     const json = await resp.json();
+    return json as PikpakFileList;
+  }
+
+  async createFolder(inParams: Except<RequestCreateFolder, "kind">) {
+    const resp = await this.client.post(
+      `${this.pikpakDriveHost}/drive/v1/files`,
+      {
+        json: defu(inParams ?? {}, { kind: "drive#folder" }),
+      },
+    );
+    const json = await resp.json() as {file: PikpakFolder};
+    return json.file;
+  }
+  async getFileInfo(id: string): Promise<PikpakFile> {
+    const url = `${this.pikpakDriveHost}/drive/v1/files/${id}`;
+    const resp = await this.client.get(url);
+    const json = await resp.json() as PikpakFile;
     return json;
   }
 
-  createFolder(inParams: SetOptional<RequestCreateFolder, "kind">) {
-    return this.client.post(`${this.pikpakDriveHost}/drive/v1/files`, {
-      json: defu(inParams ?? {}, { kind: "drive#folder" }),
-    });
+  async getDownloadUrl(id: string): Promise<string> {
+    const file = await this.getFileInfo(id);
+    return file.web_content_link;
   }
-  async getDownloadUrl(id: string) {
-    const url =
-      `https://${self.PIKPAK_API_HOST}/drive/v1/files/{id}?usage=FETCH`;
-    this.client.get(url);
+
+  async getQuotaInfo(): Promise<PikPakAbout> {
+    const url = `${this.pikpakDriveHost}/drive/v1/about`;
+    const resp = await this.client.get(url);
+    const r = await resp.json();
+    return r as PikPakAbout;
+  }
+
+  async mkdirp(p: string): Promise<PikpakFolder> {
+    p = posixPath.normalize(p).replace(/^\//g, "");
+    const segments = p.split(posixPath.SEPARATOR);
+    console.log(segments)
+
+    let i = 0;
+    let parent = "";
+    let folder;
+    while (i < segments.length) {
+      const folderList = await this.listFiles({
+        parent_id: parent,
+        filters: { kind: { eq: "drive#folder" } },
+      });
+      
+      const folder = folderList.files.find((folder) =>
+        folder.name === segments[i]
+      );
+      console.log(folder?.name, 'EE', segments[i])
+      
+      if (!folder) {
+        break;
+      }
+      
+      i++;
+      parent = folder.id;
+    }
+    if (i === segments.length && folder) {
+      return folder;
+    }
+
+    for (; i < segments.length; i++) {
+      folder = await this.createFolder({
+        name: segments[i],
+        parent_id: parent,
+      });
+      parent = folder.id;
+    }
+    return folder!;
+  }
+
+  async getEntryByPath(p: string): Promise<PikpakFile|PikpakFolder|undefined> {
+    p = posixPath.normalize(p).replace(/^\//g, "");
+    const segments = p.split(posixPath.SEPARATOR);
+
+    let i = 0;
+    let parent = "";
+    let entry;
+    while (i < segments.length) {
+      const entires = await this.listFiles({
+        parent_id: parent,
+      });
+      entry = entires.files.find((folder) =>
+        folder.name === segments[i]
+      );
+      if (!entry) {
+        return;
+      }
+
+      parent = entry.id;
+      i++;
+    }
+    if(entry && i === segments.length) {
+      return entry
+    }
+
+  }
+
+  async offlineDownload(inParams: Except<RequestOfflineDownload, 'kind'|'upload_type' | 'folder_type'>): Promise<PikpakDownloadTask> {
+    const params: RequestOfflineDownload = defu(inParams, {
+      kind: 'drive#file' as const,
+      upload_type: 'UPLOAD_TYPE_URL' as const,
+      folder_type: inParams.parent_id ? 'DOWNLOAD': ''
+    });
+    const resp = await this.client.post(`${this.pikpakDriveHost}/drive/v1/files`, {json: params});
+    const json = await resp.json();
+    return json as PikpakDownloadTask;
+  }
+
+  static isPikaFile(obj: any): obj is PikpakFile {
+    const isObj = Object.prototype.toString.call(obj) === '[object Object]';
+    return isObj && obj.kind === 'drive#file'
+  }
+  static isPikaFolder(obj: any): obj is PikpakFolder {
+    const isObj = Object.prototype.toString.call(obj) === '[object Object]';
+    return isObj && obj.kind === 'drive#folder'
   }
 }
