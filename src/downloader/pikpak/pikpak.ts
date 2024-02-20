@@ -356,18 +356,20 @@ export class PikPakClient implements Downloader {
     resourceUrl: string,
     folderPath: string,
     fileName = "",
-  ): Promise<void> {
+  ) {
     let folder;
     folder = await this._mkdirPromiseCache.get(folderPath);
     if (!folder) {
       this._mkdirPromiseCache.set(folderPath, this.mkdirp(folderPath));
       folder = await this._mkdirPromiseCache.get(folderPath);
     }
-    await this.offlineDownload({
+    const res = await this.offlineDownload({
       url: { url: resourceUrl },
       parent_id: folder.id,
       name: fileName,
     });
+    return {id: res.task.file_id, name: res.task.file_name};
+    
   }
 
   static isPikaFile(obj: any): obj is PikpakFile {

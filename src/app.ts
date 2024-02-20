@@ -4,12 +4,13 @@ import retry from "https://esm.sh/async-retry@1.3.3";
 import { Downloader } from "./downloader/downloader-type.ts";
 import { Fetcher } from "./fetcher/fetcher-types.ts";
 import { EpisodeWithRsourceInfo, Extractor } from "./info-extractor/common.ts";
-
+import { Storeage } from "./db/kysely.ts";
 export class App {
   constructor(
     private readonly fetcher: Fetcher,
     private readonly infoExtractor: Extractor,
     private readonly downloader: Downloader,
+    private readonly storage: Storeage
   ) {
   }
 
@@ -39,10 +40,8 @@ export class App {
   ) {
     const map = new Map<string, EpisodeWithRsourceInfo>();
     episodes.forEach((ep) => {
-      const key = `${
-        ep.extractedInfo.cn_title ?? ep.extractedInfo.title
-      }_${ep.extractedInfo.episode_number}`;
-      const existed = map.get(key);
+      const key = this.infoExtractor.getId(ep);
+      const existed = map.get(key);``
       if (!existed) {
         map.set(key, ep);
       } else {
@@ -69,8 +68,11 @@ export class App {
 
   async doOne(episode: EpisodeWithRsourceInfo) {
     console.info(`Downloading ${episode.title}`);
+    
     const folderName = this.infoExtractor.makeFolderName(episode);
-    await this.downloader.downLoadToPath(episode.torrent.url, folderName);
+    const {id, name} = await this.downloader.downLoadToPath(episode.torrent.url, folderName);
+    // await this.storage.
+    
   }
 
   async doOneWithRetry(episode: EpisodeWithRsourceInfo) {

@@ -11,4 +11,10 @@ export class BaseExtractor {
     }
     return "";
   }
+
+  getId(ep: EpisodeWithRsourceInfo): string {
+    return `${
+        ep.extractedInfo.cn_title ?? ep.extractedInfo.title
+      }_${ep.extractedInfo.episode_number}`;
+  }
 }

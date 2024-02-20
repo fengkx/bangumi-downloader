@@ -1,6 +1,7 @@
 import { PikPakClient } from "./downloader/pikpak/pikpak.ts";
 import { MikanAni } from "./fetcher/mikanani/mikanani.ts";
 import { GeminiExtractor } from "./info-extractor/gemini/gemini.ts";
+import { SQLiteStorage } from "./db/kysely.ts";
 import { App } from "./app.ts";
 import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
 
@@ -40,10 +41,11 @@ if (import.meta.main) {
     const mikan = new MikanAni();
     // const episodes = await mikan.getEpisodes(feedUrl);
     // console.log(episodes)
-    const gemini = new GeminiExtractor(env.GEMINI_API_KEY);
+    const storage = await SQLiteStorage.create();
+    const gemini = new GeminiExtractor(env.GEMINI_API_KEY, storage);
     // gemini.getInfoFromTitle('[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 24 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]')
 
-    const app = new App(mikan, gemini, pikpak);
+    const app = new App(mikan, gemini, pikpak, storage);
     await app.run(feedUrl);
     console.log("MAINEND");
   } catch (error) {

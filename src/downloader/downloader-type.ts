@@ -3,5 +3,5 @@ export interface Downloader {
     resourceUrl: string,
     folder: string,
     fileName?: string,
-  ): Promise<void>;
+  ): Promise<{id: string; name:string}>;
 }

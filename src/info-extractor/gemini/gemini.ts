@@ -10,14 +10,16 @@ import { ChatGoogleGenerativeAI } from "npm:@langchain/google-genai";
 
 import { HarmBlockThreshold, HarmCategory } from "npm:@google/generative-ai";
 import { examples } from "./prompts.ts";
-import { Extractor } from "../common.ts";
+import { Extractor, ResourceInfo } from "../common.ts";
 import { BaseExtractor } from "../base-extractor.ts";
+import { Storeage } from "../../db/kysely.ts";
 
 export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
+  private readonly _cachePrefix = 'gm-info'
   chatPrompt: ChatPromptTemplate<any, any>;
   private readonly _ratelimitter = RateLimit(20, { timeUnit: 1000 * 60 });
-  constructor(API_KEY: string) {
+  constructor(API_KEY: string,  private readonly storage?: Storeage) {
     super();
     this.model = new ChatGoogleGenerativeAI({
       modelName: "gemini-pro",
@@ -45,7 +47,13 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
     this.chatPrompt = chatPrompt;
   }
 
-  async getInfoFromTitle(title: string) {
+  async getInfoFromTitle(title: string): Promise<ResourceInfo> {
+    const key = `${this._cachePrefix}:${title}`
+    const cached = await this.storage?.cacheGet(key);
+    if(cached) {
+      console.log('CACHED')
+      return cached.value as ResourceInfo
+    }
     const prompt = await this.chatPrompt.formatMessages({ title });
 
     await this._ratelimitter();
@@ -55,7 +63,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       const result = JSON.parse(String(r.content));
       return result;
     }, { retries: 2 });
-
+    await this.storage?.cacheSet(key, r);
     return r;
   }
 }
