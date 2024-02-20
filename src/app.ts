@@ -1,27 +1,84 @@
 import { Sema } from "npm:async-sema";
+import retry from "https://esm.sh/async-retry@1.3.3";
+
 import { Downloader } from "./downloader/downloader-type.ts";
-import { EpisodeInfo, Fetcher } from "./fetcher/fetcher-types.ts";
-import { Extractor } from "./info-extractor/common.ts";
+import { Fetcher } from "./fetcher/fetcher-types.ts";
+import { EpisodeWithRsourceInfo, Extractor } from "./info-extractor/common.ts";
 
 export class App {
-    constructor(private readonly fetcher: Fetcher, private readonly  infoExtractor: Extractor, private readonly  downloader: Downloader) {
-    }
+  constructor(
+    private readonly fetcher: Fetcher,
+    private readonly infoExtractor: Extractor,
+    private readonly downloader: Downloader,
+  ) {
+  }
 
-    async run(feedUrl: string) {
-        const episodes = await this.fetcher.getEpisodes(feedUrl);
-        const sema = new Sema(4, {capacity: episodes.length})
-        await Promise.all(episodes.map(async ep => {
-            await sema.acquire();
-            await this.doOne(ep);
-            sema.release()
-        }))
-        
+  async run(feedUrl: string) {
+    const episodes = await this.fetcher.getEpisodes(feedUrl);
+    const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
+      episodes.map(async (ep) => {
+        const info = await this.infoExtractor.getInfoFromTitle(ep.title);
+        return { ...ep, extractedInfo: info };
+      }),
+    );
 
-    }
-    async doOne(episode: EpisodeInfo) {
-        const info = await this.infoExtractor.getInfoFromTitle(episode.title);
-        console.info(`Downloading ${info.cn_title ?? info.title} ${info.episode_number} ${info.resolution.width}x${info.resolution.height}`)
-        const folderName = this.infoExtractor.makeFolderName(info);
-        await this.downloader.downLoadToPath(episode.torrent.url, folderName)
-    }
+    const sema = new Sema(4, { capacity: episodes.length });
+    await Promise.all(
+      this.filterLatestVersionAndHigherResoultion(episodesWithInfo).map(
+        async (ep) => {
+          await sema.acquire();
+          await this.doOneWithRetry(ep);
+          sema.release();
+        },
+      ),
+    );
+  }
+
+  private filterLatestVersionAndHigherResoultion(
+    episodes: EpisodeWithRsourceInfo[],
+  ) {
+    const map = new Map<string, EpisodeWithRsourceInfo>();
+    episodes.forEach((ep) => {
+      const key = `${
+        ep.extractedInfo.cn_title ?? ep.extractedInfo.title
+      }_${ep.extractedInfo.episode_number}`;
+      const existed = map.get(key);
+      if (!existed) {
+        map.set(key, ep);
+      } else {
+        if (ep.extractedInfo.version === "final") {
+          map.set(key, ep);
+        }
+        if (
+          typeof existed.extractedInfo.version === "string" &&
+          typeof ep.extractedInfo.version &&
+          /^\d+$/.test(ep.extractedInfo.version) &&
+          /^\d$/.test(existed.extractedInfo.version)
+        ) {
+          const newer =
+            Number(ep.extractedInfo.version) >
+              Number(existed.extractedInfo.version);
+          if (newer) {
+            map.set(key, ep);
+          }
+        }
+      }
+    });
+
+    return Array.from(map.values());
+  }
+
+  async doOne(episode: EpisodeWithRsourceInfo) {
+    console.info(`Downloading ${episode.title}`);
+    const folderName = this.infoExtractor.makeFolderName(episode);
+    await this.downloader.downLoadToPath(episode.torrent.url, folderName);
+  }
+
+  async doOneWithRetry(episode: EpisodeWithRsourceInfo) {
+    return await retry(async () => {
+        return await this.doOne(episode)
+    }, {retries: 2, onRetry(e, attempt) {
+      console.info(`[Retries: ${attempt}] Downloading ${episode.title} Cause: ${e.message}`)
+    },})
+  }
 }

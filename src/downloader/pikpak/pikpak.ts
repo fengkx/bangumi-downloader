@@ -1,6 +1,7 @@
 import * as posixPath from "https://deno.land/std@0.216.0/path/posix/mod.ts";
 import * as crypto from "https://deno.land/std@0.177.0/node/crypto.ts";
 import ky, { BeforeRequestHook } from "npm:ky";
+import TTLCache from 'npm:@isaacs/ttlcache'
 import { defu } from "npm:defu";
 import {
   PikPakAbout,
@@ -51,6 +52,9 @@ export class PikPakClient implements Downloader {
   public readonly client: typeof ky;
   private readonly pikpakUserHost: string;
   private captcha_token: string;
+
+  readonly _mkdirPromiseCache = new TTLCache({ttl: 5 * 1000, checkAgeOnGet: true, noUpdateTTL: true})
+
   constructor(username: string, password: string) {
     this.clientId = "YUMx5nI8ZU8Ap8pm";
     this.clientSecret = "dbw2OtmVEeuUvIptb1Coygx";
@@ -298,7 +302,7 @@ export class PikPakClient implements Downloader {
       });
       parent = folder.id;
     }
-    return folder!;
+    return folder! as PikpakFolder;
   }
 
   async getEntryByPath(p: string): Promise<PikpakFile|PikpakFolder|undefined> {
@@ -340,7 +344,12 @@ export class PikPakClient implements Downloader {
   }
 
   async  downLoadToPath(resourceUrl: string, folderPath: string, fileName = ''): Promise<void> {
-    const folder = await this.mkdirp(folderPath);
+    let folder;
+    folder = await this._mkdirPromiseCache.get(folderPath);
+    if(!folder) {
+      this._mkdirPromiseCache.set(folderPath, this.mkdirp(folderPath));
+      folder = await this._mkdirPromiseCache.get(folderPath);
+    }
     await this.offlineDownload({
       url: {url: resourceUrl},
       parent_id: folder.id,

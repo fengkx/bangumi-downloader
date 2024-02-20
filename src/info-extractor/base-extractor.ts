@@ -1,10 +1,14 @@
-import { ResourceInfo } from "./common.ts";
+import { EpisodeWithRsourceInfo } from "./common.ts";
 
 export class BaseExtractor {
-    makeFolderName(info: ResourceInfo): string {
-        return info.cn_title
+    makeFolderName(ep: EpisodeWithRsourceInfo): string {
+        return ep.extractedInfo.cn_title
     }
-    makeFileName(info: ResourceInfo): string {
-        return `${info.cn_title}_${info.title}_${info.episode_number}`
+    makeFileName(ep: EpisodeWithRsourceInfo): string {
+        const {episode_number} =  ep.extractedInfo;
+        if(typeof episode_number === 'string' && /^\d+$/.test(episode_number)) {
+            return `${episode_number}_${ep.title}.${ep.extractedInfo.container_format}`
+        }
+        return ''
     }
 }

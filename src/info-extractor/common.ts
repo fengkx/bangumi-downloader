@@ -1,3 +1,5 @@
+import { EpisodeInfo } from "../fetcher/fetcher-types.ts";
+
 type Resolution = {
   width: number;
   height: number;
@@ -17,8 +19,10 @@ export type ResourceInfo = {
   subtitle_kind: SubtitleKind;
 };
 
+export type EpisodeWithRsourceInfo = EpisodeInfo & {extractedInfo: ResourceInfo}
+
 export interface Extractor {
   getInfoFromTitle(title: string): Promise<ResourceInfo>;
-  makeFolderName(info: ResourceInfo): string;
-  makeFileName(info: ResourceInfo): string;
+  makeFolderName(info: EpisodeWithRsourceInfo): string;
+  makeFileName(info: EpisodeWithRsourceInfo): string;
 }
