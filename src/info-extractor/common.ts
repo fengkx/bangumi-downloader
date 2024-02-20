@@ -18,4 +18,6 @@ export type ResourceInfo = {
 
 export interface Extractor {
   getInfoFromTitle(title: string): Promise<ResourceInfo>;
+  makeFolderName(info: ResourceInfo): string;
+  makeFileName(info: ResourceInfo): string;
 }

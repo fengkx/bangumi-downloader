@@ -10,12 +10,14 @@ import {
   PikpakRequestListFiles,
   RequestOfflineDownload,
 } from "./pikpak-types.ts";
+import { Downloader } from "../downloader-type.ts";
 import { RequestCreateFolder } from "./pikpak-types.ts";
-import type { Except, SetOptional } from "npm:type-fest";
+import type { Except } from "npm:type-fest";
 import { PikPakErrorResponse } from "./errors.ts";
 import { PikpakError } from "./errors.ts";
 import { PikpakDownloadTask } from "./pikpak-types.ts";
-export class PikPakClient {
+
+export class PikPakClient implements Downloader {
   private clientId: string;
   private clientSecret: string;
   private package_name: string;
@@ -275,10 +277,9 @@ export class PikPakClient {
         filters: { kind: { eq: "drive#folder" } },
       });
       
-      const folder = folderList.files.find((folder) =>
+      folder = folderList.files.find((folder) =>
         folder.name === segments[i]
       );
-      console.log(folder?.name, 'EE', segments[i])
       
       if (!folder) {
         break;
@@ -288,7 +289,7 @@ export class PikPakClient {
       parent = folder.id;
     }
     if (i === segments.length && folder) {
-      return folder;
+      return folder as PikpakFolder;
     }
 
     for (; i < segments.length; i++) {
@@ -332,11 +333,21 @@ export class PikPakClient {
     const params: RequestOfflineDownload = defu(inParams, {
       kind: 'drive#file' as const,
       upload_type: 'UPLOAD_TYPE_URL' as const,
-      folder_type: inParams.parent_id ? 'DOWNLOAD': ''
+      folder_type: inParams.parent_id ? '' : 'DOWNLOAD'
     });
     const resp = await this.client.post(`${this.pikpakDriveHost}/drive/v1/files`, {json: params});
     const json = await resp.json();
     return json as PikpakDownloadTask;
+  }
+
+  async  downLoadToPath(resourceUrl: string, folderPath: string, fileName = ''): Promise<void> {
+    const folder = await this.mkdirp(folderPath);
+    console.log(folder)
+    this.offlineDownload({
+      url: {url: resourceUrl},
+      parent_id: folder.id,
+      name: fileName
+    })
   }
 
   static isPikaFile(obj: any): obj is PikpakFile {

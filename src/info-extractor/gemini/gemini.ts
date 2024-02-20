@@ -1,24 +1,23 @@
 import {
-  AIMessagePromptTemplate,
+BaseMessagePromptTemplateLike,
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
-  PromptTemplate,
-  SystemMessagePromptTemplate,
 } from "npm:@langchain/core/prompts";
 import {
   AIMessage,
   HumanMessage,
-  SystemMessage,
 } from "npm:@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "npm:@langchain/google-genai";
 import { HarmBlockThreshold, HarmCategory } from "npm:@google/generative-ai";
-
+import { examples } from "./prompts.ts";
 import { Extractor } from "../common.ts";
+import { BaseExtractor } from "../base-extractor.ts";
 
-export class GeminiExtractor implements Extractor {
+export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
   chatPrompt: ChatPromptTemplate<any, any>;
   constructor(API_KEY: string) {
+    super();
     this.model = new ChatGoogleGenerativeAI({
       modelName: "gemini-pro",
       maxOutputTokens: 4096,
@@ -34,24 +33,23 @@ export class GeminiExtractor implements Extractor {
       ],
     });
 
-    const humanTemplate = "input: {text}";
-    const aiTemplate = "output: {text}";
-
-    const chatPrompt = ChatPromptTemplate.fromMessages([
-      ["human", humanTemplate],
-      ["ai", aiTemplate],
-    ]);
+    const messages: BaseMessagePromptTemplateLike[] = [];
+    examples.forEach(ex => {
+      messages.push(new HumanMessage(`title: ${ex.input}`));
+      messages.push(new AIMessage(`${JSON.stringify(ex.output)}`))
+    })
+    
+    messages.push(HumanMessagePromptTemplate.fromTemplate(`title: {title}`))
+    const chatPrompt = ChatPromptTemplate.fromMessages(messages);
     this.chatPrompt = chatPrompt;
   }
-   async createPrompt() {
-    // Format the messages
-    const formattedChatPrompt = await this.chatPrompt.formatMessages({
-      text: '123'
-    });
-
-    console.log(formattedChatPrompt);
-  }
+   
 
   async getInfoFromTitle(title: string) {
+    const prompt = await this.chatPrompt.formatMessages({title})
+
+    const r = await this.model.invoke(prompt);
+    const result = JSON.parse(String(r.content))
+    return result
   }
 }

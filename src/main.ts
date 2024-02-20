@@ -1,6 +1,7 @@
 import { PikPakClient } from "./downloader/pikpak/pikpak.ts";
 import {MikanAni} from './fetcher/mikanani/mikanani.ts'
 import { GeminiExtractor } from "./info-extractor/gemini/gemini.ts";
+import { App } from "./app.ts";
 import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
 
 export function add(a: number, b: number): number {
@@ -34,12 +35,16 @@ if (import.meta.main) {
 
     // }
     // console.log(await pikpak.offlineDownload({url: {url: 'https://mikanani.me/Download/20240205/7cb5bd12bb2f7d8ef7ba0fd2be24d2b1ab3edc2a.torrent'}}))
-    // const feedUrl = 'https://mikanani.me/RSS/Bangumi?bangumiId=3141&subgroupid=583';
-    // const mikan = new MikanAni();
+    const feedUrl = 'https://mikanani.me/RSS/Bangumi?bangumiId=3141&subgroupid=583';
+    const mikan = new MikanAni();
     // const episodes = await mikan.getEpisodes(feedUrl);
     // console.log(episodes)
-    const gemini = new GeminiExtractor('a');
-    gemini.createPrompt()
+    const gemini = new GeminiExtractor(env.GEMINI_API_KEY);
+    // gemini.getInfoFromTitle('[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 24 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]')
+
+    const app = new App(mikan, gemini, pikpak)
+    await app.run(feedUrl)
+    
   } catch (error) {
     console.error(error)
   }
