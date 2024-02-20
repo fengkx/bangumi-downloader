@@ -51,7 +51,6 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
     const key = `${this._cachePrefix}:${title}`
     const cached = await this.storage?.cacheGet(key);
     if(cached) {
-      console.log('CACHED')
       return cached.value as ResourceInfo
     }
     const prompt = await this.chatPrompt.formatMessages({ title });

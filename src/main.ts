@@ -43,10 +43,10 @@ if (import.meta.main) {
     // console.log(episodes)
     const storage = await SQLiteStorage.create();
     const gemini = new GeminiExtractor(env.GEMINI_API_KEY, storage);
-    // gemini.getInfoFromTitle('[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 24 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]')
+    console.log(await gemini.getInfoFromTitle('[ANi] Sōsō no Frieren /  葬送的芙莉莲 - 15 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]'))
 
     const app = new App(mikan, gemini, pikpak, storage);
-    await app.run(feedUrl);
+    // await app.run(feedUrl);
     console.log("MAINEND");
   } catch (error) {
     console.error(error);

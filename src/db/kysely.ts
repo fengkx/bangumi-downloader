@@ -56,13 +56,12 @@ return            ocb.column('key').doUpdateSet({value: JSON.stringify(value)})
         .execute();
         return r[0];
     }
-    // @ts-expect-error TODO
-    async cacheGet(k: string) {
+    async cacheGet<T>(k: string) {
         const r =  await db.selectFrom('_cache').where('key', '=', k).selectAll().execute();
         
         if(r.length > 0) {
             r[0].value = JSON.parse(r[0].value);
-            return r[0];
+            return r[0] as Except<Cache, 'value'> & {value: T} ;
         }
     }
 }
