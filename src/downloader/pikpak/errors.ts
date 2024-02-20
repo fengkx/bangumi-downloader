@@ -24,7 +24,7 @@ export class PikpakError extends HTTPError {
     this.code = json.error_code;
     this.id = json.error;
     this._error = json;
-    this.message = json.error_description
+    this.message = json.error_description;
   }
 
   get raw() {

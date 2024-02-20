@@ -5,7 +5,7 @@ type Resolution = {
   height: number;
 };
 
-type SubtitleKind = "srt" | "ass" | "embedding" | 'unknown';
+type SubtitleKind = "srt" | "ass" | "embedding" | "unknown";
 
 export type ResourceInfo = {
   version: string;
@@ -19,7 +19,9 @@ export type ResourceInfo = {
   subtitle_kind: SubtitleKind;
 };
 
-export type EpisodeWithRsourceInfo = EpisodeInfo & {extractedInfo: ResourceInfo}
+export type EpisodeWithRsourceInfo = EpisodeInfo & {
+  extractedInfo: ResourceInfo;
+};
 
 export interface Extractor {
   getInfoFromTitle(title: string): Promise<ResourceInfo>;

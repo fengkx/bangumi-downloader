@@ -113,7 +113,6 @@ export type RequestCreateFolder = {
   parent_id?: string;
 };
 
-
 type PikpakQuota = {
   kind: string;
   limit: string;
@@ -133,13 +132,12 @@ export type PikPakAbout = {
 
 export type RequestOfflineDownload = {
   kind: "drive#file";
-  upload_type: 'UPLOAD_TYPE_URL';
-  url: {url: string};
+  upload_type: "UPLOAD_TYPE_URL";
+  url: { url: string };
   name?: string;
   folder_type?: string;
   parent_id?: string;
-}
-
+};
 
 type UploadType = "UPLOAD_TYPE_URL";
 

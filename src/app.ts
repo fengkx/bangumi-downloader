@@ -55,9 +55,8 @@ export class App {
           /^\d+$/.test(ep.extractedInfo.version) &&
           /^\d$/.test(existed.extractedInfo.version)
         ) {
-          const newer =
-            Number(ep.extractedInfo.version) >
-              Number(existed.extractedInfo.version);
+          const newer = Number(ep.extractedInfo.version) >
+            Number(existed.extractedInfo.version);
           if (newer) {
             map.set(key, ep);
           }
@@ -76,9 +75,14 @@ export class App {
 
   async doOneWithRetry(episode: EpisodeWithRsourceInfo) {
     return await retry(async () => {
-        return await this.doOne(episode)
-    }, {retries: 2, onRetry(e, attempt) {
-      console.info(`[Retries: ${attempt}] Downloading ${episode.title} Cause: ${e.message}`)
-    },})
+      return await this.doOne(episode);
+    }, {
+      retries: 2,
+      onRetry(e, attempt) {
+        console.info(
+          `[Retries: ${attempt}] Downloading ${episode.title} Cause: ${e.message}`,
+        );
+      },
+    });
   }
 }

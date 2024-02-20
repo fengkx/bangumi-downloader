@@ -50,12 +50,12 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
 
     await this._ratelimitter();
     const r = await retry(async () => {
-      console.info(`Extracting info from ${title}`)
+      console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);
       const result = JSON.parse(String(r.content));
       return result;
-    }, {retries: 2});
-    
+    }, { retries: 2 });
+
     return r;
   }
 }
