@@ -18,7 +18,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
   private readonly _cachePrefix = 'gm-info'
   chatPrompt: ChatPromptTemplate<any, any>;
-  private readonly _ratelimitter = RateLimit(20, { timeUnit: 1000 * 60 });
+  private readonly _ratelimitter = RateLimit(30, { timeUnit: 1000 * 60 });
   constructor(API_KEY: string,  private readonly storage?: Storeage) {
     super();
     this.model = new ChatGoogleGenerativeAI({
@@ -56,7 +56,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
     const prompt = await this.chatPrompt.formatMessages({ title });
 
     await this._ratelimitter();
-    const r = await retry(async () => {
+    const r = await retry(async (b) => {
       console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);
       const result = JSON.parse(String(r.content));

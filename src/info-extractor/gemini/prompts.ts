@@ -16,13 +16,13 @@ export const examples: Array<{ input: string; output: ResourceInfo }> = [{
   },
 }, {
   "input":
-    "[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 22 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]",
+    "[ANi] Sōsō no Frieren / 葬送的芙莉莲 - 10 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]",
   "output": {
     version: "1",
     "cn_title": "葬送的芙莉莲",
     "title": "Sōsō no Frieren",
     "subtitle_source": "ANi",
-    "episode_number": 22,
+    "episode_number": 10,
     "container_format": "mp4",
     "subtitle_lang": ["zh-Hant"],
     "resolution": { "width": 1920, "height": 1080 },

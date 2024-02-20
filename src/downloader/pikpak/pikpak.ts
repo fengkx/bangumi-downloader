@@ -273,6 +273,15 @@ export class PikPakClient implements Downloader {
     return json;
   }
 
+  async isFileExist(id: string): Promise<boolean> {
+    try {
+      console.log(await this.getFileInfo(id));
+      return true;
+    } catch (error) {
+      return false
+    }
+  }
+
   async getDownloadUrl(id: string): Promise<string> {
     const file = await this.getFileInfo(id);
     return file.web_content_link;

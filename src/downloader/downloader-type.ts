@@ -4,4 +4,6 @@ export interface Downloader {
     folder: string,
     fileName?: string,
   ): Promise<{id: string; name:string}>;
+
+  isFileExist(id: string): Promise<boolean>
 }

@@ -42,11 +42,12 @@ if (import.meta.main) {
     // const episodes = await mikan.getEpisodes(feedUrl);
     // console.log(episodes)
     const storage = await SQLiteStorage.create();
-    const gemini = new GeminiExtractor(env.GEMINI_API_KEY, storage);
+    const gemini = new GeminiExtractor(env.GEMINI_API_KEY);
     // console.log(await gemini.getInfoFromTitle('[ANi] Sōsō no Frieren /  葬送的芙莉莲 - 15 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]'))
 
     const app = new App(mikan, gemini, pikpak, storage);
     await app.run(feedUrl);
+    console.log(await pikpak.isFileExist('asdasd'))
     console.log("MAINEND");
   } catch (error) {
     console.error(error);

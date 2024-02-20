@@ -70,8 +70,17 @@ export class App {
     console.info(`Downloading ${episode.title}`);
     
     const folderName = this.infoExtractor.makeFolderName(episode);
-    const {id, name} = await this.downloader.downLoadToPath(episode.torrent.url, folderName);
-    // await this.storage.
+    const id = this.infoExtractor.getId(episode);
+    const media = await this.storage.getMediaItemById(id);
+    if(media &&  await this.downloader.isFileExist(media.file_id)) {
+      // get resoultion or other...
+      console.log(`Already existed Skip downoading ${media.name}`)
+    } else {
+      const {id: file_id, name} = await this.downloader.downLoadToPath(episode.torrent.url, folderName);
+      await this.storage.setMediaItemById(id, {file_id, name});
+    }
+
+    
     
   }
 

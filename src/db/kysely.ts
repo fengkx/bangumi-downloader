@@ -64,10 +64,31 @@ return            ocb.column('key').doUpdateSet({value: JSON.stringify(value)})
             return r[0] as Except<Cache, 'value'> & {value: T} ;
         }
     }
+    async getMediaItemById(id: string): Promise<MediaItem | undefined> {
+      return await db.selectFrom('medias').where('id', '=', id).selectAll().limit(1).executeTakeFirst()
+    }
+
+    async setMediaItemById(id: string, m: MediaItem): Promise<void> {
+      const existed = await this.getMediaItemById(id);
+      if(!existed) {
+        await db.insertInto('medias').values({id, name: m.name, file_id: m.file_id}).execute()
+      } else {
+        await db.updateTable('medias').where('id', '=', id).set({name: m.name, file_id: m.file_id}).execute()
+      }
+    }
 }
 
 export interface Storeage {
     cacheSet(k: string, value: unknown): Promise<Cache>
     cacheGet<T = any>(k: string): Promise<Except<Cache, 'value'> & {value: T} | undefined>
+
+    getMediaItemById(id: string): Promise<MediaItem| undefined>
+    setMediaItemById(id: string, m: MediaItem): Promise<void>
+    
+}
+
+type MediaItem = {
+  name: string;
+  file_id: string;
 }
 
