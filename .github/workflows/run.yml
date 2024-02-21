@@ -1,6 +1,6 @@
 name: Run downloader
 env:
-  DENO_DIR: ~/.cache/deno_dir
+  DENO_DIR: ~/.deno_cache
 
 on:
   workflow_dispatch: 
