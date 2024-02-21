@@ -17,7 +17,8 @@ export async function up(db: Db) {
   await db.schema.createTable("medias")
     .addColumn("id", "text", (cb) => cb.unique())
     .addColumn("file_id", "text", (cb) => cb.notNull())
-    .addColumn("name", "text", (cb) => cb.notNull())
+    .addColumn("file_name", "text", (cb) => cb.notNull())
+    .addColumn("folder_name", "text", (cb) => cb.notNull())
     .addColumn("raw_title", "text", (cb) => cb.notNull())
     .addColumn(
       "created_at",

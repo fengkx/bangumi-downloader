@@ -52,7 +52,8 @@ export interface StorageRepo {
 }
 
 export type MediaItem = {
-  name: string;
+  file_name: string;
+  folder_name: string;
   file_id: string;
   raw_title: string;
 };

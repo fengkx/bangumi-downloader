@@ -15,7 +15,8 @@ export interface Database {
 export interface MediaTable {
   id: string;
   file_id: string;
-  name: string;
+  file_name: string;
+  folder_name: string;
   raw_title: string;
   created_at: ColumnType<Date, string | undefined, never>;
 }

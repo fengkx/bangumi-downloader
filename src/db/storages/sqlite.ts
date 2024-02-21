@@ -40,13 +40,15 @@ export class SQLiteStorage implements StorageRepo {
     if (!existed) {
       await db.insertInto("medias").values({
         id,
-        name: m.name,
+        file_name: m.file_name,
+        folder_name: m.folder_name,
         file_id: m.file_id,
         raw_title: m.raw_title,
       }).execute();
     } else {
       await db.updateTable("medias").where("id", "=", id).set({
-        name: m.name,
+        folder_name: m.folder_name,
+        file_name: m.file_name,
         file_id: m.file_id,
         raw_title: m.raw_title,
       }).execute();
