@@ -52,7 +52,7 @@ export const examples: Array<{ input: string; output: ResourceInfo }> = [{
     "subtitle_source": "OPFans枫雪动漫",
     "episode_number": 1092,
     "container_format": "mp4",
-    version: "1",
+    version: "final",
     "subtitle_lang": ["zh-Hans"],
     "resolution": { "width": 1920, "height": 1080 },
   },
