@@ -73,7 +73,7 @@ export class App {
           // pick largest resolution
           if (
             ep.extractedInfo.resolution?.height ??
-              0 > existed.extractedInfo.resolution?.height
+              0 > existed.extractedInfo.resolution?.height ?? 0
           ) {
             console.info(
               `Pick ${ep.title} over ${existed.title} Reason: resolution ${ep.extractedInfo.resolution?.height} > ${existed.extractedInfo.resolution?.height}`,
