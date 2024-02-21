@@ -1,4 +1,4 @@
-name: Run downloader
+name: Add RSS feed
 env:
   DENO_DIR: ~/.cache/deno_dir
 
