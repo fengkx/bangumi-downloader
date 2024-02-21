@@ -38,7 +38,11 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
 
     const messages: BaseMessagePromptTemplateLike[] = [];
     examples.forEach((ex) => {
-      messages.push(new HumanMessage(`You are a meida resource info extractor. Return resource info in strict valid json format from title: ${ex.input}`));
+      messages.push(
+        new HumanMessage(
+          `You are a meida resource info extractor. Return resource info in strict valid json format from title: ${ex.input}`,
+        ),
+      );
       messages.push(new AIMessage(`${JSON.stringify(ex.output)}`));
     });
 
