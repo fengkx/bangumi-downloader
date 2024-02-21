@@ -33,7 +33,7 @@ jobs:
 
       - name: Run downloader
         run: |
-          deno task add feedUrls ${{inputs.feed_url}}
+          deno task add feedUrls '${{inputs.feed_url}}'
           deno fmt config.ts
       - name: Commits Files
         uses: stefanzweifel/git-auto-commit-action@v5
