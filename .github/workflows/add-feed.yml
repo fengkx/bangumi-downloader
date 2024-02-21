@@ -1,0 +1,44 @@
+name: Run downloader
+env:
+  DENO_DIR: ~/.cache/deno_dir
+
+on:
+  workflow_dispatch: 
+    inputs: 
+      feed_url:
+        description: 'RSS feed URL to add in the config file'
+        required: true
+        type: string
+
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache Deno dependencies 
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: ${{ hashFiles('deno.lock') }}
+
+      - name: Run downloader
+        run: |
+          deno task add feedUrls ${{inputs.feed_url}}
+          deno fmt config.ts
+      - name: Commits Files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          # The commit message for the commit.
+          commit_message: "Add feed URL: ${{inputs.feed_url}}"
+          commit_author: Author <actions@github.com>
+          
