@@ -14,15 +14,15 @@ export async function main(options: { configFile: string }) {
     const config = await loadConfig(options.configFile);
     console.log(config);
     const pikpak = new PikPakClient(
-      Deno.env.get('PIKPAK_USER') ?? '',
-      Deno.env.get('PIKPAK_PASSWORD') ?? '',
+      Deno.env.get("PIKPAK_USER") ?? "",
+      Deno.env.get("PIKPAK_PASSWORD") ?? "",
     );
     await pikpak.init();
 
     const mikan = new MikanAni();
 
     const storage = await SQLiteStorage.create();
-    const gemini = new GeminiExtractor(Deno.env.get('GEMINI_API_KEY') ?? '');
+    const gemini = new GeminiExtractor(Deno.env.get("GEMINI_API_KEY") ?? "");
 
     const app = new App(mikan, gemini, pikpak, storage, config);
     await app.run();

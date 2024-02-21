@@ -71,9 +71,13 @@ export class App {
           !dequal(ep.extractedInfo.resolution, existed.extractedInfo.resolution)
         ) {
           // pick largest resolution
+          const currentWidth = ep.extractedInfo.resolution?.height ?? 0;
+          const existedWidth = existed.extractedInfo.resolution?.height ?? 0;
+
           if (
-            ep.extractedInfo.resolution?.height ??
-              0 > existed.extractedInfo.resolution?.height ?? 0
+            typeof currentWidth === "number" &&
+            typeof existedWidth === "number" &&
+            currentWidth > existedWidth
           ) {
             console.info(
               `Pick ${ep.title} over ${existed.title} Reason: resolution ${ep.extractedInfo.resolution?.height} > ${existed.extractedInfo.resolution?.height}`,
