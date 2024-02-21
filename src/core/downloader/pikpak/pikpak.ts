@@ -298,7 +298,9 @@ export class PikPakClient implements Downloader {
     return r as PikPakAbout;
   }
 
-  async mkdirp(p: string): Promise<PikpakFolder> {
+  async mkdirp(p: string, create?: true): Promise<PikpakFolder>;
+  async mkdirp(p: string, create?: false): Promise<PikpakFolder | undefined>;
+  async mkdirp(p: string, create = true): Promise<PikpakFolder | undefined> {
     const lock = this.getLock(`mkdirp:${p}`);
     try {
       await lock.acquire();
@@ -325,6 +327,10 @@ export class PikPakClient implements Downloader {
       }
       if (i === segments.length && folder) {
         return folder as PikpakFolder;
+      }
+
+      if (!create) {
+        return undefined;
       }
 
       for (; i < segments.length; i++) {
@@ -409,6 +415,20 @@ export class PikPakClient implements Downloader {
   }
   async deleteFile(ids: string[]): Promise<void> {
     await this.deleteToTrash(ids);
+  }
+
+  async removeDirIfEmpty(p: string): Promise<boolean> {
+    const folder = await this.mkdirp(p, false);
+    if (!folder) {
+      return false;
+    }
+    const list = await this.listFiles({ parent_id: folder.id });
+    const r = list.files.length === 0;
+    if (!r) {
+      return false;
+    }
+    await this.deleteFile([folder.id]);
+    return true;
   }
 
   static isPikaFile(obj: any): obj is PikpakFile {

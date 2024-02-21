@@ -42,6 +42,12 @@ export class App {
     if (mediasToDelete.length > 0) {
       console.info(`Delete unused medias ${mediasToDelete.length}`);
       await this.downloader.deleteFile(mediasToDelete.map((m) => m.file_id));
+      const folderNamesDeleted = Array.from(
+        new Set(mediasToDelete.map((m) => m.folder_name)),
+      );
+      await Promise.all(folderNamesDeleted.map(async (p) => {
+        await this.downloader.removeDirIfEmpty(p);
+      }));
       await this.storage.removeMediaItemById(mediasToDelete.map((m) => m.id));
     }
   }

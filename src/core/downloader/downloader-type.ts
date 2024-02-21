@@ -8,4 +8,7 @@ export interface Downloader {
 
   isFileExist(id: string): Promise<boolean>;
   deleteFile(ids: string[]): Promise<void>;
+
+  // mkdirp(p: string): Promise<{id: string}>
+  removeDirIfEmpty(p: string): Promise<boolean>;
 }
