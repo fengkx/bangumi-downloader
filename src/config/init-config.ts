@@ -15,7 +15,7 @@ export type BangumiDownloaderConfig = ReadonlyDeep<
   RequiredDeep<ConfigFileType>
 >;
 
-export function initConfig<T extends ConfigFileType>(
+export function defineConfig<T extends ConfigFileType>(
   config: T,
 ): ReadonlyDeep<RequiredDeep<T>> {
   return defu(config, { baseFolder: "" }) as ReadonlyDeep<RequiredDeep<T>>;
@@ -28,5 +28,5 @@ export async function loadConfig(
     throw new Error(`${absPath} not existed`);
   }
   const { default: config } = await import(absPath);
-  return initConfig(configValidator.parse(config));
+  return defineConfig(configValidator.parse(config));
 }
