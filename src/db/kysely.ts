@@ -17,6 +17,7 @@ import {
 import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 import { Cache, Database } from "./db-types.ts";
 import { Except } from "npm:type-fest";
+import { MediaRow } from "./db-types.ts";
 
 export type Db = Kysely<Database>;
 
@@ -54,12 +55,14 @@ export interface StorageRepo {
   ): Promise<Except<Cache, "value"> & { value: T } | undefined>;
 
   getMediaItemById(id: string): Promise<MediaItem | undefined>;
-  setMediaItemById(id: string, m: MediaItem): Promise<void>;
+  setMediaItemById(
+    id: string,
+    m: Except<MediaItem, "id" | "created_at">,
+  ): Promise<void>;
+
+  getMediaItemsNotInIds(ids: string[]): Promise<MediaItem[]>;
+
+  removeMediaItemById(ids: string[]): Promise<void>;
 }
 
-export type MediaItem = {
-  file_name: string;
-  folder_name: string;
-  file_id: string;
-  raw_title: string;
-};
+export type MediaItem = MediaRow;

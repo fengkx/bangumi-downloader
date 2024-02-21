@@ -58,4 +58,15 @@ export class SQLiteStorage implements StorageRepo {
       }).execute();
     }
   }
+  async removeMediaItemById(ids: string[]): Promise<void> {
+    const db = getDb();
+    await db.deleteFrom("medias").where("id", "in", ids).execute();
+  }
+
+  async getMediaItemsNotInIds(ids: string[]): Promise<MediaItem[]> {
+    const db = getDb();
+    const rows = await db.selectFrom("medias").where("id", "not in", ids)
+      .selectAll().execute();
+    return rows;
+  }
 }

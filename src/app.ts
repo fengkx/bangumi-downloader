@@ -27,13 +27,25 @@ export class App {
     const sema = new Sema(this.config.feed_concurrency, {
       capacity: feedUrls.length,
     });
+
+    const usedIds = new Set<string>();
     await Promise.all(feedUrls.map(async (feedUrl) => {
       await sema.acquire();
-      await this.runFeed(feedUrl);
+      const ids = await this.runFeed(feedUrl);
+      ids.forEach((id) => usedIds.add(id));
       sema.release();
     }));
+
+    const mediasToDelete = await this.storage.getMediaItemsNotInIds(
+      Array.from(usedIds),
+    );
+    if (mediasToDelete.length > 0) {
+      console.info(`Delete unused medias ${mediasToDelete.length}`);
+      await this.downloader.deleteFile(mediasToDelete.map((m) => m.file_id));
+      await this.storage.removeMediaItemById(mediasToDelete.map((m) => m.id));
+    }
   }
-  async runFeed(feedUrl: string) {
+  async runFeed(feedUrl: string): Promise<string[]> {
     const episodes = await this.fetcher.getEpisodes(feedUrl);
     const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
       episodes.map(async (ep) => {
@@ -54,6 +66,7 @@ export class App {
         },
       ),
     );
+    return episodesWithInfo.map((e) => this.infoExtractor.getId(e));
   }
 
   private pickBestItem(
@@ -128,8 +141,9 @@ export class App {
             ep.extractedInfo.subtitle_lang,
           );
           if (
-            currentLangIndex < existedLangIndex
-             && currentLangIndex > -1 && currentLangIndex < this.config.prefer_subtitle_lang.length // make sure currentIndex is valid
+            currentLangIndex < existedLangIndex &&
+            currentLangIndex > -1 &&
+            currentLangIndex < this.config.prefer_subtitle_lang.length // make sure currentIndex is valid
           ) {
             console.info(
               `Pick ${ep.title} over ${existed.title} Reason: subtitle lang ${ep.extractedInfo.subtitle_lang}`,

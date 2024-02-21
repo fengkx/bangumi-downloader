@@ -30,3 +30,5 @@ export interface CacheTable {
 export type Cache = Selectable<CacheTable>;
 export type NewCache = Insertable<CacheTable>;
 export type CacheUpdate = Updateable<CacheTable>;
+
+export type MediaRow = Selectable<MediaTable>;
