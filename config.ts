@@ -1,6 +1,6 @@
 import { defineConfig } from "./src/config/init-config.ts";
 
-const config = defineConfig({
+export default defineConfig({
   feedUrls: [
     // "https://mikanani.me/RSS/Bangumi?bangumiId=3141&subgroupid=583",
     "https://mikanani.me/RSS/Bangumi?bangumiId=3240&subgroupid=12"
@@ -9,6 +9,4 @@ const config = defineConfig({
   job_concurrency: 8,
   prefer_subtitle_lang: ['zh-Hant', 'zh-Hans', 'ja'],
   baseFolder: "BANGUMI",
-});
-
-export default config;
+})

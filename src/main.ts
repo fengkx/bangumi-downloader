@@ -1,42 +1,31 @@
-import { PikPakClient } from "./downloader/pikpak/pikpak.ts";
-import { MikanAni } from "./fetcher/mikanani/mikanani.ts";
-import { GeminiExtractor } from "./info-extractor/gemini/gemini.ts";
-import { SQLiteStorage } from "./db/storages/sqlite.ts";
-import { App } from "./app.ts";
-import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
-import { parseArgs } from "https://deno.land/std@0.216.0/cli/parse_args.ts";
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts";
+import { main as mainCmd } from "./cli/commands/main.ts";
 import { resolve as pathResolve } from "https://deno.land/std@0.216.0/path/resolve.ts";
-import { loadConfig } from "./config/init-config.ts";
+import { configEditActionEnumType } from "./cli/commands/config.ts";
+import { configEdit } from "./cli/commands/config.ts";
+import { ConfigEditActionEnum } from "./cli/commands/config.ts";
 
-// Learn more at https://deno.land/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  const env = await load();
-  const args = parseArgs(Deno.args);
+async function main() {
+  await new Command()
+  .type('action', configEditActionEnumType)
+  .name("BangumiDownloader")
+  .version("0.1.0")
+  .description("Bangumi downloader")
+  .globalOption('--config <configFile>', 'path to  a js / ts file export a config object as default', {required: true,})
+  .action(async (options) => {
+    const configFile = pathResolve(options.config);
+    await mainCmd({configFile})
 
-  try {
-    let configFile = args.config;
-    if (!configFile) {
-      throw new Error("Usage: --config xx.config.ts");
-    }
-    configFile = pathResolve(configFile);
-    const config = await loadConfig(configFile);
-    console.log(config);
-    const pikpak = new PikPakClient(
-      env.PIKPAK_USER,
-      env.PIKPAK_PASSWORD,
-    );
-    await pikpak.init();
-
-    const mikan = new MikanAni();
-
-    const storage = await SQLiteStorage.create();
-    const gemini = new GeminiExtractor(env.GEMINI_API_KEY);
-
-    const app = new App(mikan, gemini, pikpak, storage, config);
-    await app.run();
-
-    console.log("RUN Finished");
-  } catch (error) {
-    console.error(error);
-  }
+  })
+  .command('config <action:string> <key:string>  [value]')
+  .option('--dry-run', 'Print changed config')
+  .action(async (options, action, key, value) => {
+    const configFile = pathResolve(options.config);
+    // @ts-expect-error TODO:
+    await configEdit(configFile, {action, key, value, dry_run: options.dryRun})
+  })
+  .parse(Deno.args)
+  
 }
+
+main()

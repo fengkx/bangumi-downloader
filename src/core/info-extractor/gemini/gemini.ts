@@ -12,7 +12,7 @@ import { HarmBlockThreshold, HarmCategory } from "npm:@google/generative-ai";
 import { examples } from "./prompts.ts";
 import { Extractor, ResourceInfo, resourceInfoValidator } from "../common.ts";
 import { BaseExtractor } from "../base-extractor.ts";
-import { StorageRepo } from "../../db/kysely.ts";
+import { StorageRepo } from "../../../db/kysely.ts";
 
 export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
