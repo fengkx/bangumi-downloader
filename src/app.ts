@@ -125,7 +125,7 @@ export class App {
           );
           if (currentLangIndex < existedLangIndex) {
             console.info(
-              `Pick ${ep.title} over ${existed.title} Reason: subtitle lang`,
+              `Pick ${ep.title} over ${existed.title} Reason: subtitle lang ${ep.extractedInfo.subtitle_lang}`,
             );
             map.set(key, ep);
           }
