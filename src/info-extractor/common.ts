@@ -1,5 +1,5 @@
 import { EpisodeInfo } from "../fetcher/fetcher-types.ts";
-import { Storeage } from "../db/kysely.ts";
+import { StorageRepo } from "../db/kysely.ts";
 type Resolution = {
   width: number;
   height: number;
@@ -27,6 +27,5 @@ export interface Extractor {
   getInfoFromTitle(title: string): Promise<ResourceInfo>;
   makeFolderName(info: EpisodeWithRsourceInfo): string;
   makeFileName(info: EpisodeWithRsourceInfo): string;
-  getId(ep: EpisodeWithRsourceInfo): string
-
+  getId(ep: EpisodeWithRsourceInfo): string;
 }

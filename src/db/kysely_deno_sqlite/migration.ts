@@ -1,4 +1,4 @@
-import { MigrationProvider, Migration } from "npm:kysely";
+import { Migration, MigrationProvider } from "npm:kysely";
 
 function isMigration(obj: { up?: unknown }): obj is Migration {
   return typeof obj === "object" && typeof obj?.up === "function";
@@ -13,7 +13,7 @@ export class FileMigrationProvider implements MigrationProvider {
 
   async getMigrations() {
     const migrations: Record<string, Migration> = {};
-    
+
     for (const entry of Deno.readDirSync(this.#migrationFolder)) {
       const fileName = entry.name;
       if (

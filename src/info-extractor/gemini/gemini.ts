@@ -12,14 +12,14 @@ import { HarmBlockThreshold, HarmCategory } from "npm:@google/generative-ai";
 import { examples } from "./prompts.ts";
 import { Extractor, ResourceInfo } from "../common.ts";
 import { BaseExtractor } from "../base-extractor.ts";
-import { Storeage } from "../../db/kysely.ts";
+import { StorageRepo } from "../../db/kysely.ts";
 
 export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
-  private readonly _cachePrefix = 'gm-info'
+  private readonly _cachePrefix = "gm-info";
   chatPrompt: ChatPromptTemplate<any, any>;
   private readonly _ratelimitter = RateLimit(30, { timeUnit: 1000 * 60 });
-  constructor(API_KEY: string,  private readonly storage?: Storeage) {
+  constructor(API_KEY: string, private readonly storage?: StorageRepo) {
     super();
     this.model = new ChatGoogleGenerativeAI({
       modelName: "gemini-pro",
@@ -48,10 +48,10 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
   }
 
   async getInfoFromTitle(title: string): Promise<ResourceInfo> {
-    const key = `${this._cachePrefix}:${title}`
+    const key = `${this._cachePrefix}:${title}`;
     const cached = await this.storage?.cacheGet(key);
-    if(cached) {
-      return cached.value as ResourceInfo
+    if (cached) {
+      return cached.value as ResourceInfo;
     }
     const prompt = await this.chatPrompt.formatMessages({ title });
 
@@ -60,13 +60,16 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);
       const result = JSON.parse(String(r.content)) as ResourceInfo;
-      if(result.cn_title && !title.includes(result.cn_title) && attempt < 5) {
-        throw new Error(`${result.cn_title} is not existed in ${title}`)
+      if (result.cn_title && !title.includes(result.cn_title) && attempt < 5) {
+        throw new Error(`${result.cn_title} is not existed in ${title}`);
       }
       return result;
-    }, { retries: 5, onRetry(e, attempt) {
-      console.info(`[Retries ${attempt}] extracting Cause: ${e.message}`)
-    }, });
+    }, {
+      retries: 5,
+      onRetry(e, attempt) {
+        console.info(`[Retries ${attempt}] extracting Cause: ${e.message}`);
+      },
+    });
     await this.storage?.cacheSet(key, r);
     return r;
   }

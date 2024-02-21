@@ -3,7 +3,7 @@ import { simplecc } from "npm:simplecc-wasm";
 
 export class BaseExtractor {
   makeFolderName(ep: EpisodeWithRsourceInfo): string {
-    return simplecc(ep.extractedInfo.cn_title, 't2s');
+    return simplecc(ep.extractedInfo.cn_title, "t2s");
   }
   makeFileName(ep: EpisodeWithRsourceInfo): string {
     const { episode_number } = ep.extractedInfo;
@@ -15,7 +15,7 @@ export class BaseExtractor {
 
   getId(ep: EpisodeWithRsourceInfo): string {
     return `${
-        simplecc(ep.extractedInfo.cn_title ?? ep.extractedInfo.title, 't2s')
-      }_${ep.extractedInfo.episode_number}`;
+      simplecc(ep.extractedInfo.cn_title ?? ep.extractedInfo.title, "t2s")
+    }_${ep.extractedInfo.episode_number}`;
   }
 }

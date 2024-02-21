@@ -138,6 +138,10 @@ export class PikPakClient implements Downloader {
     });
   }
 
+  async init(): Promise<void> {
+    return await this.login();
+  }
+
   async login() {
     const req = {
       client_id: this.clientId,
@@ -275,10 +279,10 @@ export class PikPakClient implements Downloader {
 
   async isFileExist(id: string): Promise<boolean> {
     try {
-      await this.getFileInfo(id)
+      await this.getFileInfo(id);
       return true;
     } catch (error) {
-      return false
+      return false;
     }
   }
 
