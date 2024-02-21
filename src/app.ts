@@ -127,7 +127,10 @@ export class App {
           const currentLangIndex = this.findSubtitleLangIndex(
             ep.extractedInfo.subtitle_lang,
           );
-          if (currentLangIndex < existedLangIndex) {
+          if (
+            currentLangIndex < existedLangIndex
+             && currentLangIndex > -1 && currentLangIndex < this.config.prefer_subtitle_lang.length // make sure currentIndex is valid
+          ) {
             console.info(
               `Pick ${ep.title} over ${existed.title} Reason: subtitle lang ${ep.extractedInfo.subtitle_lang}`,
             );
