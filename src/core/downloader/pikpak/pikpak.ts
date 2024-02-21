@@ -404,8 +404,8 @@ export class PikPakClient implements Downloader {
   }
   async deleteToTrash(ids: string[]) {
     const url = `${this.pikpakDriveHost}/drive/v1/files:batchTrash`;
-    const resp = await this.client.post(url, {json: {ids}});
-    return await resp.json()
+    const resp = await this.client.post(url, { json: { ids } });
+    return await resp.json();
   }
   async deleteFile(ids: string[]): Promise<void> {
     await this.deleteToTrash(ids);

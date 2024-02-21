@@ -21,8 +21,8 @@ import { Except } from "npm:type-fest";
 export type Db = Kysely<Database>;
 
 let db: Db;
-export const getDb =  () => {
-  if(db) {
+export const getDb = () => {
+  if (db) {
     return db;
   }
   db = new Kysely<Database>({
@@ -33,7 +33,7 @@ export const getDb =  () => {
     }),
   });
   return db;
-}
+};
 
 export async function migrateToLatest() {
   const migrator = new Migrator({

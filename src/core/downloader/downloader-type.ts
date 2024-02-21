@@ -7,5 +7,5 @@ export interface Downloader {
   ): Promise<{ id: string; name: string }>;
 
   isFileExist(id: string): Promise<boolean>;
-  deleteFile(ids: string[]): Promise<void>
+  deleteFile(ids: string[]): Promise<void>;
 }

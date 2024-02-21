@@ -4,7 +4,10 @@ import retry from "https://esm.sh/async-retry@1.3.3";
 import { dequal } from "npm:dequal";
 import { Downloader } from "./core/downloader/downloader-type.ts";
 import { Fetcher } from "./core/fetcher/fetcher-types.ts";
-import { EpisodeWithRsourceInfo, Extractor } from "./core/info-extractor/common.ts";
+import {
+  EpisodeWithRsourceInfo,
+  Extractor,
+} from "./core/info-extractor/common.ts";
 import { StorageRepo } from "./db/kysely.ts";
 import { BangumiDownloaderConfig } from "./config/init-config.ts";
 import { arrayEqualIgnoredOrder } from "./utils.ts";

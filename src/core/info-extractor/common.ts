@@ -28,9 +28,9 @@ export const resourceInfoValidator = z.object({
   title: z.string().nullable().optional(),
   subtitle_source: z.string(),
   episode_number: z.string().or(z.number()).or(z.null()),
-  resolution: z.object({width: z.number(), height: z.number()}).optional(),
-  subtitle_kind: z.string().optional().nullable()
-})
+  resolution: z.object({ width: z.number(), height: z.number() }).optional(),
+  subtitle_kind: z.string().optional().nullable(),
+});
 
 export type EpisodeWithRsourceInfo = EpisodeInfo & {
   extractedInfo: ResourceInfo;

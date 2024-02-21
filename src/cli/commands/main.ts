@@ -7,11 +7,10 @@ import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
 import { loadConfig } from "../../config/init-config.ts";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
-export async function main(options: {configFile: string}) {
+export async function main(options: { configFile: string }) {
   const env = await load();
-  
+
   try {
-    
     const config = await loadConfig(options.configFile);
     console.log(config);
     const pikpak = new PikPakClient(

@@ -63,7 +63,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       if (result.cn_title && !title.includes(result.cn_title) && attempt < 5) {
         throw new Error(`${result.cn_title} is not existed in ${title}`);
       }
-      resourceInfoValidator.parse(result)
+      resourceInfoValidator.parse(result);
       return result;
     }, {
       retries: 5,

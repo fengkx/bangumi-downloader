@@ -32,14 +32,14 @@ export class SQLiteStorage implements StorageRepo {
     return undefined;
   }
   async getMediaItemById(id: string): Promise<MediaItem | undefined> {
-    const db = getDb()
+    const db = getDb();
     return await db.selectFrom("medias").where("id", "=", id).selectAll().limit(
       1,
     ).executeTakeFirst();
   }
 
   async setMediaItemById(id: string, m: MediaItem): Promise<void> {
-    const db = getDb()
+    const db = getDb();
     const existed = await this.getMediaItemById(id);
     if (!existed) {
       await db.insertInto("medias").values({
