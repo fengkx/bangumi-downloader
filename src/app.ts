@@ -60,18 +60,18 @@ export class App {
       }),
     );
 
-    const sema = new Sema(this.config.job_concurrency, {
-      capacity: episodes.length,
-    });
-    await Promise.all(
-      this.pickBestItem(episodesWithInfo).map(
-        async (ep) => {
-          await sema.acquire();
-          await this.doOneWithRetry(ep);
-          sema.release();
-        },
-      ),
-    );
+    // const sema = new Sema(this.config.job_concurrency, {
+    //   capacity: episodes.length,
+    // });
+    // await Promise.all(
+    //   this.pickBestItem(episodesWithInfo).map(
+    //     async (ep) => {
+    //       await sema.acquire();
+    //       await this.doOneWithRetry(ep);
+    //       sema.release();
+    //     },
+    //   ),
+    // );
     return episodesWithInfo.map((e) => this.infoExtractor.getId(e));
   }
 

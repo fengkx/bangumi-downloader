@@ -38,7 +38,11 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
 
     const messages: BaseMessagePromptTemplateLike[] = [];
     examples.forEach((ex) => {
-      messages.push(new HumanMessage(`title: ${ex.input}`));
+      messages.push(
+        new HumanMessage(
+          `You are a meida resource info extractor. Return resource info in strict valid json format from title: ${ex.input}`,
+        ),
+      );
       messages.push(new AIMessage(`${JSON.stringify(ex.output)}`));
     });
 
@@ -60,6 +64,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);
       const result = JSON.parse(String(r.content)) as ResourceInfo;
+      console.log(result, title);
       if (result.cn_title && !title.includes(result.cn_title) && attempt < 5) {
         throw new Error(`${result.cn_title} is not existed in ${title}`);
       }
