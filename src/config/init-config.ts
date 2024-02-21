@@ -8,6 +8,7 @@ const configValidator = z.object({
   feed_concurrency: z.number().min(1),
   job_concurrency: z.number().min(1),
   baseFolder: z.string().optional(),
+  prefer_subtitle_lang: z.array(z.enum(['zh-Hans', 'zh-Hant', 'ja'])).default(['zh-Hans', 'zh-Hant', 'ja'])
 });
 
 type ConfigFileType = z.infer<typeof configValidator>;

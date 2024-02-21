@@ -1,12 +1,13 @@
 import { join as pathJoin } from "https://deno.land/std@0.216.0/path/join.ts";
 import { Sema } from "npm:async-sema";
 import retry from "https://esm.sh/async-retry@1.3.3";
-
+import {dequal} from "npm:dequal";
 import { Downloader } from "./downloader/downloader-type.ts";
 import { Fetcher } from "./fetcher/fetcher-types.ts";
 import { EpisodeWithRsourceInfo, Extractor } from "./info-extractor/common.ts";
 import { StorageRepo } from "./db/kysely.ts";
 import { BangumiDownloaderConfig } from "./config/init-config.ts";
+import { arrayEqualIgnoredOrder } from "./utils.ts";
 
 export class App {
   constructor(
@@ -19,7 +20,7 @@ export class App {
   }
 
   async run() {
-    const feedUrls = this.config.feedUrls;
+    const feedUrls = Array.from(new Set(this.config.feedUrls));
     const sema = new Sema(this.config.feed_concurrency, {
       capacity: feedUrls.length,
     });
@@ -42,7 +43,7 @@ export class App {
       capacity: episodes.length,
     });
     await Promise.all(
-      this.filterLatestVersionAndHigherResoultion(episodesWithInfo).map(
+      this.pickBestItem(episodesWithInfo).map(
         async (ep) => {
           await sema.acquire();
           await this.doOneWithRetry(ep);
@@ -52,7 +53,7 @@ export class App {
     );
   }
 
-  private filterLatestVersionAndHigherResoultion(
+  private pickBestItem(
     episodes: EpisodeWithRsourceInfo[],
   ) {
     const map = new Map<string, EpisodeWithRsourceInfo>();
@@ -63,27 +64,61 @@ export class App {
       if (!existed) {
         map.set(key, ep);
       } else {
-        // take final version
-        if (ep.extractedInfo.version === "final") {
-          map.set(key, ep);
-        }
-        // take version bigger version
-        if (
-          typeof existed.extractedInfo.version === "string" &&
-          typeof ep.extractedInfo.version &&
-          /^\d+$/.test(ep.extractedInfo.version) &&
-          /^\d$/.test(existed.extractedInfo.version)
-        ) {
-          const newer = Number(ep.extractedInfo.version) >
-            Number(existed.extractedInfo.version);
-          if (newer) {
+        if(!dequal(ep.extractedInfo.resolution, existed.extractedInfo.resolution)) {
+          // pick largest resolution
+          if (ep.extractedInfo.resolution?.height ?? 0 > existed.extractedInfo.resolution?.height) {
             map.set(key, ep);
           }
+        } else if (ep.extractedInfo.version !== existed.extractedInfo.version) {
+          // version is different
+          if (
+            ep.extractedInfo.version === "final"
+          ) {
+            // take final version
+            map.set(key, ep);
+          }
+
+          if (
+            typeof existed.extractedInfo.version === "string" &&
+            typeof ep.extractedInfo.version &&
+            /^\d+$/.test(ep.extractedInfo.version) &&
+            /^\d$/.test(existed.extractedInfo.version)
+          ) {
+            // take version bigger version
+            const newer = Number(ep.extractedInfo.version) >
+              Number(existed.extractedInfo.version);
+            if (newer) {
+              map.set(key, ep);
+            }
+          }
+        } else if (
+          (!Array.isArray(ep.extractedInfo.subtitle_lang) || !Array.isArray(existed.extractedInfo.subtitle_lang))
+          && arrayEqualIgnoredOrder(ep.extractedInfo.subtitle_lang, existed.extractedInfo.subtitle_lang)
+          ) {
+          // subtitle lang is different
+          const existedLangIndex = this.findSubtitleLangIndex(existed.extractedInfo.subtitle_lang);
+          const currentLangIndex = this.findSubtitleLangIndex(ep.extractedInfo.subtitle_lang);
+          if(currentLangIndex < existedLangIndex) {
+            map.set(key, ep)
+          }
+
         }
       }
     });
 
     return Array.from(map.values());
+  }
+
+  private findSubtitleLangIndex(subtitle_lang: string[]) {
+    let index = -1;
+    for(let i =0; i<subtitle_lang.length; i++) {
+      const idx = this.config.prefer_subtitle_lang.indexOf(subtitle_lang[i]);
+      if(idx >=0 && idx < index) {
+        index = idx;
+      }
+    }
+
+    return index;
   }
 
   async doOne(episode: EpisodeWithRsourceInfo) {
