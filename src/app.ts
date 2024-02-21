@@ -148,8 +148,8 @@ export class App {
   private async downloadEpisode(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
     const folderName = this.infoExtractor.makeFolderName(episode);
-    console.info(`Downloading ${episode.title}`);
     const folderPath = pathJoin(this.config.baseFolder, folderName);
+    console.info(`Downloading ${episode.title}`);
     const { id: file_id, name } = await this.downloader.downLoadToPath(
       episode.torrent.url,
       folderPath,
@@ -184,7 +184,7 @@ export class App {
       retries: 2,
       onRetry(e, attempt) {
         console.info(
-          `[Retries: ${attempt}] Downloading ${episode.title} Cause: ${e.message}`,
+          `[Retries: ${attempt}] Retry episode ${episode.title} Cause: ${e.message}`,
         );
       },
     });

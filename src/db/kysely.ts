@@ -20,17 +20,24 @@ import { Except } from "npm:type-fest";
 
 export type Db = Kysely<Database>;
 
-export const db = new Kysely<Database>({
-  dialect: new DenoSqliteDialect({
-    database: new DB(
-      fromFileUrl(new URL("../../data/db.sqlite3", import.meta.url)),
-    ),
-  }),
-});
+let db: Db;
+export const getDb =  () => {
+  if(db) {
+    return db;
+  }
+  db = new Kysely<Database>({
+    dialect: new DenoSqliteDialect({
+      database: new DB(
+        fromFileUrl(new URL("../../data/db.sqlite3", import.meta.url)),
+      ),
+    }),
+  });
+  return db;
+}
 
 export async function migrateToLatest() {
   const migrator = new Migrator({
-    db,
+    db: getDb(),
     provider: new FileMigrationProvider(
       new URL("migrations/", import.meta.url),
     ),
@@ -39,7 +46,6 @@ export async function migrateToLatest() {
   // const migrations = await migrator.getMigrations();
   await migrator.migrateToLatest();
 }
-await migrateToLatest();
 
 export interface StorageRepo {
   cacheSet(k: string, value: unknown): Promise<Cache>;

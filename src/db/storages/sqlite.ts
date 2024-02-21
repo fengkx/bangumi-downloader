@@ -1,6 +1,6 @@
 import { Except } from "npm:type-fest";
 
-import { db, MediaItem, migrateToLatest, StorageRepo } from "../kysely.ts";
+import { getDb, MediaItem, migrateToLatest, StorageRepo } from "../kysely.ts";
 import type { Cache } from "../db-types.ts";
 
 export class SQLiteStorage implements StorageRepo {
@@ -10,6 +10,7 @@ export class SQLiteStorage implements StorageRepo {
   }
 
   async cacheSet<T>(k: string, value: T) {
+    const db = getDb();
     const r = await db.insertInto("_cache").values({
       key: k,
       value: JSON.stringify(value),
@@ -21,6 +22,7 @@ export class SQLiteStorage implements StorageRepo {
     return r[0];
   }
   async cacheGet<T>(k: string) {
+    const db = getDb();
     const r = await db.selectFrom("_cache").where("key", "=", k).selectAll()
       .executeTakeFirst();
     if (r) {
@@ -30,12 +32,14 @@ export class SQLiteStorage implements StorageRepo {
     return undefined;
   }
   async getMediaItemById(id: string): Promise<MediaItem | undefined> {
+    const db = getDb()
     return await db.selectFrom("medias").where("id", "=", id).selectAll().limit(
       1,
     ).executeTakeFirst();
   }
 
   async setMediaItemById(id: string, m: MediaItem): Promise<void> {
+    const db = getDb()
     const existed = await this.getMediaItemById(id);
     if (!existed) {
       await db.insertInto("medias").values({
