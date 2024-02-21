@@ -8,21 +8,21 @@ import { loadConfig } from "../../config/init-config.ts";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 export async function main(options: { configFile: string }) {
-  const env = await load();
+  const env = await load({ export: true });
 
   try {
     const config = await loadConfig(options.configFile);
     console.log(config);
     const pikpak = new PikPakClient(
-      env.PIKPAK_USER,
-      env.PIKPAK_PASSWORD,
+      Deno.env.get('PIKPAK_USER') ?? '',
+      Deno.env.get('PIKPAK_PASSWORD') ?? '',
     );
     await pikpak.init();
 
     const mikan = new MikanAni();
 
     const storage = await SQLiteStorage.create();
-    const gemini = new GeminiExtractor(env.GEMINI_API_KEY);
+    const gemini = new GeminiExtractor(Deno.env.get('GEMINI_API_KEY') ?? '');
 
     const app = new App(mikan, gemini, pikpak, storage, config);
     await app.run();
