@@ -97,7 +97,10 @@ export class App {
             );
             map.set(key, ep);
           }
-        } else if (ep.extractedInfo.version !== existed.extractedInfo.version) {
+        } else if (
+          ep.extractedInfo.version ?? "v1" !== existed.extractedInfo.version ??
+            "v1"
+        ) {
           // version is different
           if (
             ep.extractedInfo.version === "final"

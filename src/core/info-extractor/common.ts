@@ -23,12 +23,13 @@ export type ResourceInfo = {
 
 export const resourceInfoValidator = z.object({
   // Loosen some check
-  version: z.string(),
+  version: z.string().default("v1"),
   cn_title: z.string().nullable().optional(),
   title: z.string().nullable().optional(),
   subtitle_source: z.string(),
   episode_number: z.string().or(z.number()).or(z.null()),
-  resolution: z.object({ width: z.number(), height: z.number() }).optional(),
+  resolution: z.object({ width: z.number(), height: z.number() }).optional()
+    .nullable(),
   subtitle_kind: z.string().optional().nullable(),
 });
 
