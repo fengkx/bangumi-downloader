@@ -10,7 +10,7 @@ import { ChatGoogleGenerativeAI } from "npm:@langchain/google-genai";
 
 import { HarmBlockThreshold, HarmCategory } from "npm:@google/generative-ai";
 import { examples } from "./prompts.ts";
-import { Extractor, ResourceInfo } from "../common.ts";
+import { Extractor, ResourceInfo, resourceInfoValidator } from "../common.ts";
 import { BaseExtractor } from "../base-extractor.ts";
 import { StorageRepo } from "../../db/kysely.ts";
 
@@ -63,6 +63,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       if (result.cn_title && !title.includes(result.cn_title) && attempt < 5) {
         throw new Error(`${result.cn_title} is not existed in ${title}`);
       }
+      resourceInfoValidator.parse(result)
       return result;
     }, {
       retries: 5,

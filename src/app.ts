@@ -1,7 +1,7 @@
 import { join as pathJoin } from "https://deno.land/std@0.216.0/path/join.ts";
 import { Sema } from "npm:async-sema";
 import retry from "https://esm.sh/async-retry@1.3.3";
-import {dequal} from "npm:dequal";
+import { dequal } from "npm:dequal";
 import { Downloader } from "./downloader/downloader-type.ts";
 import { Fetcher } from "./fetcher/fetcher-types.ts";
 import { EpisodeWithRsourceInfo, Extractor } from "./info-extractor/common.ts";
@@ -64,9 +64,17 @@ export class App {
       if (!existed) {
         map.set(key, ep);
       } else {
-        if(!dequal(ep.extractedInfo.resolution, existed.extractedInfo.resolution)) {
+        if (
+          !dequal(ep.extractedInfo.resolution, existed.extractedInfo.resolution)
+        ) {
           // pick largest resolution
-          if (ep.extractedInfo.resolution?.height ?? 0 > existed.extractedInfo.resolution?.height) {
+          if (
+            ep.extractedInfo.resolution?.height ??
+              0 > existed.extractedInfo.resolution?.height
+          ) {
+            console.info(
+              `Pick ${ep.title} over ${existed.title} Reason: resolution ${ep.extractedInfo.resolution?.height} > ${existed.extractedInfo.resolution?.height}`,
+            );
             map.set(key, ep);
           }
         } else if (ep.extractedInfo.version !== existed.extractedInfo.version) {
@@ -75,6 +83,9 @@ export class App {
             ep.extractedInfo.version === "final"
           ) {
             // take final version
+            console.info(
+              `Pick ${ep.title} over ${existed.title} Reason: version`,
+            );
             map.set(key, ep);
           }
 
@@ -88,20 +99,33 @@ export class App {
             const newer = Number(ep.extractedInfo.version) >
               Number(existed.extractedInfo.version);
             if (newer) {
+              console.info(
+                `Pick ${ep.title} over ${existed.title} Reason version`,
+              );
               map.set(key, ep);
             }
           }
         } else if (
-          (!Array.isArray(ep.extractedInfo.subtitle_lang) || !Array.isArray(existed.extractedInfo.subtitle_lang))
-          && arrayEqualIgnoredOrder(ep.extractedInfo.subtitle_lang, existed.extractedInfo.subtitle_lang)
-          ) {
+          (Array.isArray(ep.extractedInfo.subtitle_lang) &&
+            Array.isArray(existed.extractedInfo.subtitle_lang)) &&
+          !arrayEqualIgnoredOrder(
+            ep.extractedInfo.subtitle_lang,
+            existed.extractedInfo.subtitle_lang,
+          )
+        ) {
           // subtitle lang is different
-          const existedLangIndex = this.findSubtitleLangIndex(existed.extractedInfo.subtitle_lang);
-          const currentLangIndex = this.findSubtitleLangIndex(ep.extractedInfo.subtitle_lang);
-          if(currentLangIndex < existedLangIndex) {
-            map.set(key, ep)
+          const existedLangIndex = this.findSubtitleLangIndex(
+            existed.extractedInfo.subtitle_lang,
+          );
+          const currentLangIndex = this.findSubtitleLangIndex(
+            ep.extractedInfo.subtitle_lang,
+          );
+          if (currentLangIndex < existedLangIndex) {
+            console.info(
+              `Pick ${ep.title} over ${existed.title} Reason: subtitle lang`,
+            );
+            map.set(key, ep);
           }
-
         }
       }
     });
@@ -111,9 +135,9 @@ export class App {
 
   private findSubtitleLangIndex(subtitle_lang: string[]) {
     let index = -1;
-    for(let i =0; i<subtitle_lang.length; i++) {
+    for (let i = 0; i < subtitle_lang.length; i++) {
       const idx = this.config.prefer_subtitle_lang.indexOf(subtitle_lang[i]);
-      if(idx >=0 && idx < index) {
+      if (idx >= 0 && (idx < index || index === -1)) {
         index = idx;
       }
     }
@@ -121,26 +145,35 @@ export class App {
     return index;
   }
 
-  async doOne(episode: EpisodeWithRsourceInfo) {
+  private async downloadEpisode(episode: EpisodeWithRsourceInfo) {
+    const id = this.infoExtractor.getId(episode);
     const folderName = this.infoExtractor.makeFolderName(episode);
+    console.info(`Downloading ${episode.title}`);
+    const folderPath = pathJoin(this.config.baseFolder, folderName);
+    const { id: file_id, name } = await this.downloader.downLoadToPath(
+      episode.torrent.url,
+      folderPath,
+    );
+    await this.storage.setMediaItemById(id, {
+      file_id,
+      file_name: name,
+      folder_name: folderPath,
+      raw_title: episode.title,
+    });
+  }
+
+  async doOne(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
     const media = await this.storage.getMediaItemById(id);
     if (media && await this.downloader.isFileExist(media.file_id)) {
-      // get resoultion or other...
-      console.log(`Already existed Skip downoading ${media.file_name}`);
+      if (media.raw_title === episode.title) {
+        console.log(`Already existed Skip downoading ${media.file_name}`);
+      } else {
+        await this.downloader.deleteFile([media.file_id]);
+        await this.downloadEpisode(episode);
+      }
     } else {
-      console.info(`Downloading ${episode.title}`);
-      const folderPath = pathJoin(this.config.baseFolder, folderName);
-      const { id: file_id, name } = await this.downloader.downLoadToPath(
-        episode.torrent.url,
-        folderPath,
-      );
-      await this.storage.setMediaItemById(id, {
-        file_id,
-        file_name: name,
-        folder_name: folderPath,
-        raw_title: episode.title,
-      });
+      await this.downloadEpisode(episode);
     }
   }
 

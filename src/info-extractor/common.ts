@@ -1,5 +1,7 @@
 import { EpisodeInfo } from "../fetcher/fetcher-types.ts";
 import { StorageRepo } from "../db/kysely.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
 type Resolution = {
   width: number;
   height: number;
@@ -18,6 +20,17 @@ export type ResourceInfo = {
   resolution: Resolution;
   subtitle_kind: SubtitleKind;
 };
+
+export const resourceInfoValidator = z.object({
+  // Loosen some check
+  version: z.string(),
+  cn_title: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  subtitle_source: z.string(),
+  episode_number: z.string().or(z.number()).or(z.null()),
+  resolution: z.object({width: z.number(), height: z.number()}).optional(),
+  subtitle_kind: z.string()
+})
 
 export type EpisodeWithRsourceInfo = EpisodeInfo & {
   extractedInfo: ResourceInfo;

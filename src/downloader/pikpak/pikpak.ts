@@ -402,6 +402,14 @@ export class PikPakClient implements Downloader {
     });
     return { id: res.task.file_id, name: res.task.file_name };
   }
+  async deleteToTrash(ids: string[]) {
+    const url = `${this.pikpakDriveHost}/drive/v1/files:batchTrash`;
+    const resp = await this.client.post(url, {json: {ids}});
+    return await resp.json()
+  }
+  async deleteFile(ids: string[]): Promise<void> {
+    await this.deleteToTrash(ids);
+  }
 
   static isPikaFile(obj: any): obj is PikpakFile {
     const isObj = Object.prototype.toString.call(obj) === "[object Object]";
