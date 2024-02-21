@@ -15,14 +15,14 @@ jobs:
     runs-on: ubuntu-latest  
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
       - name: Cache Deno dependencies 
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ env.DENO_DIR }}
           key: ${{ hashFiles('deno.lock') }}
@@ -36,7 +36,7 @@ jobs:
           deno task run
           date +"%Y-%m-%dT%H:%M:%S%z" > ./data/.last-run
       - name: Commits Files
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           # The commit message for the commit.
           commit_message: "Update last sent"
