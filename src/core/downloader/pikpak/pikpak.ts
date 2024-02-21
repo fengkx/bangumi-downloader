@@ -217,11 +217,11 @@ export class PikPakClient implements Downloader {
         {
           json: req,
         },
-      ).json() as any;
+      ).json() as {captcha_token: string};
 
       this.captcha_token = resp.captcha_token;
     } catch (error) {
-      throw new Error("Failed to obtain captcha token");
+      throw new Error("Failed to obtain captcha token", {cause: error});
     }
   }
   async listFiles(inParams?: PikpakRequestListFiles): Promise<PikpakFileList> {
@@ -281,7 +281,7 @@ export class PikPakClient implements Downloader {
     try {
       await this.getFileInfo(id);
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
