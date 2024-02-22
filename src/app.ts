@@ -47,12 +47,14 @@ export class App {
       );
       await Promise.all(folderNamesDeleted.map(async (p) => {
         await this.downloader.removeDirIfEmpty(p);
+        console.info(`Delete folder ${p}`);
       }));
       await this.storage.removeMediaItemById(mediasToDelete.map((m) => m.id));
     }
   }
   async runFeed(feedUrl: string): Promise<string[]> {
     const episodes = await this.fetcher.getEpisodes(feedUrl);
+
     const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
       episodes.map(async (ep) => {
         const info = await this.infoExtractor.getInfoFromTitle(ep.title);
@@ -67,7 +69,7 @@ export class App {
       this.pickBestItem(episodesWithInfo).map(
         async (ep) => {
           await sema.acquire();
-          // await this.doOneWithRetry(ep);
+          await this.doOneWithRetry(ep);
           sema.release();
         },
       ),
