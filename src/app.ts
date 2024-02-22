@@ -181,6 +181,7 @@ export class App {
   private async downloadEpisode(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
     const folderName = await this.infoExtractor.makeFolderName(episode);
+
     const folderPath = pathJoin(this.config.baseFolder, folderName);
     console.info(`Downloading ${episode.title}`);
     const { id: file_id, name } = await this.downloader.downLoadToPath(
