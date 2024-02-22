@@ -156,6 +156,7 @@ export class PikPakClient implements Downloader {
         {
           json: req,
         },
+        // deno-lint-ignore no-explicit-any
       ).json() as any;
 
       if (!resp.access_token) {
@@ -180,7 +181,7 @@ export class PikPakClient implements Downloader {
         json: req,
       });
     } catch (error) {
-      throw new Error("Logout failed");
+      throw new Error("Logout failed", { cause: error });
     }
   }
 
@@ -431,10 +432,12 @@ export class PikPakClient implements Downloader {
     return true;
   }
 
+  // deno-lint-ignore no-explicit-any
   static isPikaFile(obj: any): obj is PikpakFile {
     const isObj = Object.prototype.toString.call(obj) === "[object Object]";
     return isObj && obj.kind === "drive#file";
   }
+  // deno-lint-ignore no-explicit-any
   static isPikaFolder(obj: any): obj is PikpakFolder {
     const isObj = Object.prototype.toString.call(obj) === "[object Object]";
     return isObj && obj.kind === "drive#folder";

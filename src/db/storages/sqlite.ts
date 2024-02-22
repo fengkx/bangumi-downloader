@@ -26,6 +26,7 @@ export class SQLiteStorage implements StorageRepo {
     const r = await db.selectFrom("_cache").where("key", "=", k).selectAll()
       .executeTakeFirst();
     if (r) {
+      // @ts-expect-error overide json
       r.value = JSON.parse(r.value);
       return r as Except<Cache, "value"> & { value: T };
     }

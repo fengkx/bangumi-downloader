@@ -3,7 +3,9 @@ import { main as mainCmd } from "./cli/commands/main.ts";
 import { resolve as pathResolve } from "https://deno.land/std@0.216.0/path/resolve.ts";
 import { configEditActionEnumType } from "./cli/commands/config.ts";
 import { configEdit } from "./cli/commands/config.ts";
-import { ConfigEditActionEnum } from "./cli/commands/config.ts";
+
+// TODO: type
+// import { ConfigEditActionEnum } from "./cli/commands/config.ts";
 
 async function main() {
   await new Command()

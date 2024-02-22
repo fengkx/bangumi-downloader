@@ -17,7 +17,7 @@ import { StorageRepo } from "../../../db/kysely.ts";
 export class GeminiExtractor extends BaseExtractor implements Extractor {
   readonly model: ChatGoogleGenerativeAI;
   private readonly _cachePrefix = "gm-info";
-  chatPrompt: ChatPromptTemplate<any, any>;
+  private chatPrompt: ChatPromptTemplate<{ title: string }>;
   private readonly _ratelimitter = RateLimit(30, { timeUnit: 1000 * 60 });
   constructor(API_KEY: string, private readonly storage?: StorageRepo) {
     super();
@@ -59,7 +59,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
     }
     const prompt = await this.chatPrompt.formatMessages({ title });
 
-    const r = await retry(async (b, attempt) => {
+    const r = await retry(async (_b, attempt) => {
       await this._ratelimitter();
       console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);

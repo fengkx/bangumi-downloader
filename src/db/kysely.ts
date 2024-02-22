@@ -1,15 +1,6 @@
 import { fromFileUrl } from "https://deno.land/std@0.216.0/path/from_file_url.ts";
 
-import {
-  ColumnType,
-  Generated,
-  Insertable,
-  Kysely,
-  Migrator,
-  Selectable,
-  sql,
-  Updateable,
-} from "npm:kysely";
+import { Kysely, Migrator } from "npm:kysely";
 import {
   DenoSqliteDialect,
   FileMigrationProvider,
@@ -50,6 +41,7 @@ export async function migrateToLatest() {
 
 export interface StorageRepo {
   cacheSet(k: string, value: unknown): Promise<Cache>;
+  // deno-lint-ignore no-explicit-any
   cacheGet<T = any>(
     k: string,
   ): Promise<Except<Cache, "value"> & { value: T } | undefined>;

@@ -8,7 +8,7 @@ import { loadConfig } from "../../config/init-config.ts";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 export async function main(options: { configFile: string }) {
-  const env = await load({ export: true });
+  await load({ export: true });
 
   try {
     const config = await loadConfig(options.configFile);

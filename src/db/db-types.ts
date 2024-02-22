@@ -1,11 +1,4 @@
-import {
-  ColumnType,
-  Generated,
-  Insertable,
-  JSONColumnType,
-  Selectable,
-  Updateable,
-} from "npm:kysely";
+import { ColumnType, Insertable, Selectable, Updateable } from "npm:kysely";
 
 export interface Database {
   _cache: CacheTable;
