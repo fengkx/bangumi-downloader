@@ -106,8 +106,9 @@ export class App {
             map.set(key, ep);
           }
         } else if (
-          ep.extractedInfo.version ?? "v1" !== existed.extractedInfo.version ??
-            "v1"
+          (ep.extractedInfo.version ?? "v1") !==
+            (existed.extractedInfo.version ??
+              "v1")
         ) {
           // version is different
           if (
@@ -136,7 +137,8 @@ export class App {
               map.set(key, ep);
             }
           }
-        } else if (
+        } else 
+        if (
           (Array.isArray(ep.extractedInfo.subtitle_lang) &&
             Array.isArray(existed.extractedInfo.subtitle_lang)) &&
           !arrayEqualIgnoredOrder(
