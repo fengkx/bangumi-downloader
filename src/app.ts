@@ -137,8 +137,7 @@ export class App {
               map.set(key, ep);
             }
           }
-        } else 
-        if (
+        } else if (
           (Array.isArray(ep.extractedInfo.subtitle_lang) &&
             Array.isArray(existed.extractedInfo.subtitle_lang)) &&
           !arrayEqualIgnoredOrder(

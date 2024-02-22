@@ -5,6 +5,7 @@ import { getSubjectById } from "./utils/bangumi-api.ts";
 export class BaseExtractor {
   async makeFolderName(ep: EpisodeWithRsourceInfo): Promise<string> {
     if (ep.bangumiSubjectId) {
+      console.log(ep.bangumiSubjectId, "makeFolderName");
       const bgmSubject = await getSubjectById(ep.bangumiSubjectId);
       console.log(bgmSubject.name_cn);
       return simplecc(bgmSubject.name_cn, "t2s");

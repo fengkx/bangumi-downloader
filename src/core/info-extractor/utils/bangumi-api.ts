@@ -13,7 +13,15 @@ type BangumiTvSubject = {
   "name_cn": string;
   type: number;
 };
+
+const privateCache = new Map<number, BangumiTvSubject>();
+
 export const getSubjectById = async (id: number) => {
-  const resp = await client.get(`subjects/${id}`).json() as BangumiTvSubject;
-  return resp;
+  let e = privateCache.get(id);
+  if (!e) {
+    e = await client.get(`subjects/${id}`).json() as BangumiTvSubject;
+    privateCache.set(id, e);
+  }
+
+  return e;
 };
