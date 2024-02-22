@@ -19,7 +19,7 @@ export async function main(options: { configFile: string }) {
     );
     await pikpak.init();
 
-    const mikan = new MikanAni();
+    const mikan = new MikanAni(config);
 
     const storage = await SQLiteStorage.create();
     const gemini = new GeminiExtractor(Deno.env.get("GEMINI_API_KEY") ?? "");

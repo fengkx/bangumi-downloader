@@ -1,11 +1,17 @@
 import { EpisodeWithRsourceInfo } from "./common.ts";
 import { simplecc } from "npm:simplecc-wasm";
+import { getSubjectById } from "./utils/bangumi-api.ts";
 
 export class BaseExtractor {
-  makeFolderName(ep: EpisodeWithRsourceInfo): string {
+  async makeFolderName(ep: EpisodeWithRsourceInfo): Promise<string> {
+    if (ep.bangumiSubjectId) {
+      const bgmSubject = await getSubjectById(ep.bangumiSubjectId);
+      console.log(bgmSubject.name_cn);
+      return simplecc(bgmSubject.name_cn, "t2s");
+    }
     return simplecc(ep.extractedInfo.cn_title, "t2s");
   }
-  makeFileName(ep: EpisodeWithRsourceInfo): string {
+  async makeFileName(ep: EpisodeWithRsourceInfo): Promise<string> {
     const { episode_number } = ep.extractedInfo;
     if (typeof episode_number === "string" && /^\d+$/.test(episode_number)) {
       return `${episode_number}_${ep.title}.${ep.extractedInfo.container_format}`;

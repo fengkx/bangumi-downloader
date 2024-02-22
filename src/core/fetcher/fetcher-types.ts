@@ -1,3 +1,5 @@
+import type { BangumiDownloaderConfig } from "../../config/init-config.ts";
+
 export type EpisodeInfo = {
   guid: string;
   title: string;
@@ -5,6 +7,7 @@ export type EpisodeInfo = {
   torrent: {
     url: string;
   };
+  bangumiSubjectId?: number;
 };
 
 export interface Fetcher {

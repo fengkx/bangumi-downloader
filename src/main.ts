@@ -26,12 +26,13 @@ async function main() {
     .option("--dry-run", "Print changed config")
     .action(async (options, action, key, value) => {
       const configFile = pathResolve(options.config);
-      // @ts-expect-error TODO:
       await configEdit(configFile, {
+        // @ts-expect-error TODO:
         action,
         key,
+        // @ts-expect-error TODO:
         value,
-        dry_run: options.dryRun,
+        dry_run: options.dryRun ?? false,
       });
     })
     .parse(Deno.args);

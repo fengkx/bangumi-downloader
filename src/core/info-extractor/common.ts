@@ -38,7 +38,7 @@ export type EpisodeWithRsourceInfo = EpisodeInfo & {
 
 export interface Extractor {
   getInfoFromTitle(title: string): Promise<ResourceInfo>;
-  makeFolderName(info: EpisodeWithRsourceInfo): string;
-  makeFileName(info: EpisodeWithRsourceInfo): string;
+  makeFolderName(info: EpisodeWithRsourceInfo): Promise<string>;
+  makeFileName(info: EpisodeWithRsourceInfo): Promise<string>;
   getId(ep: EpisodeWithRsourceInfo): string;
 }

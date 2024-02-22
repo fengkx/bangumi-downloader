@@ -32,6 +32,8 @@ from GitHub web page.
 - [x] config file / cli
 - [x] log 优化
 - [x] 内容去重， 支持 v2， 分辨率选择最高
+- [ ] 用 bangumi API 挑一个 合适的译名 比如
+      [摇曳露营 over 轻旅轻营](https://bangumi.tv/subject_search/%E8%BD%BB%E6%97%85%E8%BD%BB%E8%90%A5?cat=2)
 - [ ] 检查下载任务
 - [ ] 删除无效文件
 - [ ] refresh login

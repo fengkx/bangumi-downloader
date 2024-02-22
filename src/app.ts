@@ -67,7 +67,7 @@ export class App {
       this.pickBestItem(episodesWithInfo).map(
         async (ep) => {
           await sema.acquire();
-          await this.doOneWithRetry(ep);
+          // await this.doOneWithRetry(ep);
           sema.release();
         },
       ),
@@ -180,7 +180,7 @@ export class App {
 
   private async downloadEpisode(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
-    const folderName = this.infoExtractor.makeFolderName(episode);
+    const folderName = await this.infoExtractor.makeFolderName(episode);
     const folderPath = pathJoin(this.config.baseFolder, folderName);
     console.info(`Downloading ${episode.title}`);
     const { id: file_id, name } = await this.downloader.downLoadToPath(
