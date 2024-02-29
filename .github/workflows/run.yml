@@ -41,6 +41,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           # The commit message for the commit.
-          commit_message: "Update last sent"
+          commit_message: "Update database"
           commit_author: Author <actions@github.com>
           
