@@ -72,7 +72,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
     }, {
       retries: 5,
       onRetry(e, attempt) {
-        console.info(`[Retries ${attempt}] extracting Cause: ${e.message}`);
+        console.info(`[Retries ${attempt}] extracting ${title} | Cause: ${e.message}`);
       },
     });
     await this.storage?.cacheSet(key, r);
