@@ -220,8 +220,9 @@ export class App {
         const cn_title =
           (await this.infoExtractor.getSimpleCnTitle?.(episode)) ??
             episode.extractedInfo.cn_title;
-        const text =
-          `Downloaded #${cn_title} ${episode.extractedInfo.episode_number ?? ''}`;
+        const text = `Downloaded #${cn_title} ${
+          episode.extractedInfo.episode_number ?? ""
+        }`;
         await this.notifier.sendNotification(text, mediaUrl);
       }
     }

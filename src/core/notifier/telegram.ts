@@ -17,12 +17,12 @@ export class TelegramNotifier extends TelegramBot implements Notifier {
     // //     // console.error(_error);
     // //     await this.sendMessage(this.config.notifier.user_id, text, {
     // //       parse_mode: "HTML",
-    // //     });  
+    // //     });
     // //   }
     // } else {
-      await this.sendMessage(this.config.notifier.user_id, text, {
-        parse_mode: "HTML",
-      });
+    await this.sendMessage(this.config.notifier.user_id, text, {
+      parse_mode: "HTML",
+    });
     // }
   }
 }
