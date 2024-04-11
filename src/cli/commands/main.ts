@@ -5,6 +5,7 @@ import { SQLiteStorage } from "../../db/storages/sqlite.ts";
 import { App } from "../../app.ts";
 import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
 import { loadConfig } from "../../config/init-config.ts";
+import { TelegramNotificationer } from "../../core/notificationer/telegram.ts";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 export async function main(options: { configFile: string }) {
@@ -23,8 +24,12 @@ export async function main(options: { configFile: string }) {
 
     const storage = await SQLiteStorage.create();
     const gemini = new GeminiExtractor(Deno.env.get("GEMINI_API_KEY") ?? "");
+    let telegramBot = undefined;
+    if(config.notificationer.type === 'telegram' && config.notificationer.token) {
+      telegramBot = new TelegramNotificationer(config);
+    }
 
-    const app = new App(mikan, gemini, pikpak, storage, config);
+    const app = new App(mikan, gemini, pikpak, storage, config, telegramBot);
     await app.run();
 
     console.log("RUN Finished");

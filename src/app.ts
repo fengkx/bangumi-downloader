@@ -11,6 +11,7 @@ import {
 import { StorageRepo } from "./db/kysely.ts";
 import { BangumiDownloaderConfig } from "./config/init-config.ts";
 import { arrayEqualIgnoredOrder } from "./utils.ts";
+import { Notificationer } from "./core/notificationer/base.ts";
 
 export class App {
   constructor(
@@ -19,11 +20,12 @@ export class App {
     private readonly downloader: Downloader,
     private readonly storage: StorageRepo,
     private readonly config: BangumiDownloaderConfig,
+    private readonly notificationer?: Notificationer
   ) {
   }
 
   async run() {
-    const feedUrls = Array.from(new Set(this.config.feedUrls));
+    const feedUrls = Array.from(new Set<string>(this.config.feedUrls));
     const sema = new Sema(this.config.feed_concurrency, {
       capacity: feedUrls.length,
     });
@@ -211,6 +213,13 @@ export class App {
       }
     } else {
       await this.downloadEpisode(episode);
+      // TODO pusher
+      if(this.notificationer) {
+        const cn_title = (await this.infoExtractor.getSimpleCnTitle?.(episode)) ?? episode.extractedInfo.cn_title;
+        const text = `Downloaded ${episode.title} ${episode.extractedInfo.episode_number}  #${cn_title} #${episode.extractedInfo.title} `
+        this.notificationer.sendNotification(text);
+      }
+
     }
   }
 
@@ -219,7 +228,7 @@ export class App {
       return await this.doOne(episode);
     }, {
       retries: 2,
-      onRetry(e, attempt) {
+      onRetry(e: Error, attempt: number) {
         console.info(
           `[Retries: ${attempt}] Retry episode ${episode.title} Cause: ${e.message}`,
         );

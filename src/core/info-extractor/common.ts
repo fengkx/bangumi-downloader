@@ -37,6 +37,7 @@ export type EpisodeWithRsourceInfo = EpisodeInfo & {
 };
 
 export interface Extractor {
+  getSimpleCnTitle?: (ep: EpisodeWithRsourceInfo) => Promise<string>;
   getInfoFromTitle(title: string): Promise<ResourceInfo>;
   makeFolderName(info: EpisodeWithRsourceInfo): Promise<string>;
   makeFileName(info: EpisodeWithRsourceInfo): Promise<string>;
