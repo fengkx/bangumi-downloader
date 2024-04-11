@@ -4,7 +4,7 @@ export interface Downloader {
     resourceUrl: string,
     folder: string,
     fileName?: string,
-  ): Promise<{ id: string; name: string }>;
+  ): Promise<{ id: string; name: string; mediaUrl?: string }>;
 
   isFileExist(id: string): Promise<boolean>;
   deleteFile(ids: string[]): Promise<void>;

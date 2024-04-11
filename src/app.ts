@@ -11,6 +11,7 @@ import {
 import { StorageRepo } from "./db/kysely.ts";
 import { BangumiDownloaderConfig } from "./config/init-config.ts";
 import { arrayEqualIgnoredOrder } from "./utils.ts";
+import { Notifier } from "./core/notifier/base.ts";
 
 export class App {
   constructor(
@@ -19,11 +20,12 @@ export class App {
     private readonly downloader: Downloader,
     private readonly storage: StorageRepo,
     private readonly config: BangumiDownloaderConfig,
+    private readonly notifier?: Notifier,
   ) {
   }
 
   async run() {
-    const feedUrls = Array.from(new Set(this.config.feedUrls));
+    const feedUrls = Array.from(new Set<string>(this.config.feedUrls));
     const sema = new Sema(this.config.feed_concurrency, {
       capacity: feedUrls.length,
     });
@@ -187,16 +189,18 @@ export class App {
 
     const folderPath = pathJoin(this.config.baseFolder, folderName);
     console.info(`Downloading ${episode.title}`);
-    const { id: file_id, name } = await this.downloader.downLoadToPath(
-      episode.torrent.url,
-      folderPath,
-    );
+    const { id: file_id, name, mediaUrl } = await this.downloader
+      .downLoadToPath(
+        episode.torrent.url,
+        folderPath,
+      );
     await this.storage.setMediaItemById(id, {
       file_id,
       file_name: name,
       folder_name: folderPath,
       raw_title: episode.title,
     });
+    return { file_id, name, mediaUrl };
   }
 
   async doOne(episode: EpisodeWithRsourceInfo) {
@@ -210,7 +214,17 @@ export class App {
         await this.downloadEpisode(episode);
       }
     } else {
-      await this.downloadEpisode(episode);
+      const { mediaUrl } = await this.downloadEpisode(episode);
+      // TODO pusher
+      if (this.notifier) {
+        const cn_title =
+          (await this.infoExtractor.getSimpleCnTitle?.(episode)) ??
+            episode.extractedInfo.cn_title;
+        const text = `Downloaded #${cn_title} ${
+          episode.extractedInfo.episode_number ?? ""
+        }`;
+        await this.notifier.sendNotification(text, mediaUrl);
+      }
     }
   }
 
@@ -219,7 +233,7 @@ export class App {
       return await this.doOne(episode);
     }, {
       retries: 2,
-      onRetry(e, attempt) {
+      onRetry(e: Error, attempt: number) {
         console.info(
           `[Retries: ${attempt}] Retry episode ${episode.title} Cause: ${e.message}`,
         );

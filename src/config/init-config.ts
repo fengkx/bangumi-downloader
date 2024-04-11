@@ -14,6 +14,11 @@ const configValidator = z.object({
     "zh-Hant",
     "ja",
   ]),
+  notifier: z.object({
+    type: z.enum(["telegram"]),
+    token: z.string(),
+    user_id: z.string(),
+  }).optional(),
 });
 
 type ConfigFileType = z.infer<typeof configValidator>;

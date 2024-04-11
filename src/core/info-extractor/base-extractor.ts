@@ -6,7 +6,6 @@ export class BaseExtractor {
   async getSimpleCnTitle(ep: EpisodeWithRsourceInfo): Promise<string> {
     if (ep.bangumiSubjectId) {
       const bgmSubject = await getSubjectById(ep.bangumiSubjectId);
-      console.log(bgmSubject.name_cn);
       return simplecc(bgmSubject.name_cn, "t2s");
     }
     return simplecc(ep.extractedInfo.cn_title, "t2s");

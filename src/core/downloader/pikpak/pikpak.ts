@@ -1,6 +1,7 @@
 import * as posixPath from "https://deno.land/std@0.216.0/path/posix/mod.ts";
 import * as crypto from "https://deno.land/std@0.177.0/node/crypto.ts";
 import ky, { BeforeRequestHook } from "npm:ky";
+import wait from "npm:async-wait-until";
 import { Sema } from "npm:async-sema";
 import { defu } from "npm:defu";
 import {
@@ -407,7 +408,18 @@ export class PikPakClient implements Downloader {
       parent_id: folder.id,
       name: fileName,
     });
-    return { id: res.task.file_id, name: res.task.file_name };
+    const mediaUrl = await wait.waitUntil(
+      async () => {
+        try {
+          const mediaUrl = await this.getDownloadUrl(res.task.file_id);
+          return mediaUrl;
+        } catch (_error) {
+          return undefined;
+        }
+      },
+      { timeout: 30 * 1000, intervalBetweenAttempts: 5 * 1000 },
+    );
+    return { id: res.task.file_id, name: res.task.file_name, mediaUrl };
   }
   async deleteToTrash(ids: string[]) {
     const url = `${this.pikpakDriveHost}/drive/v1/files:batchTrash`;

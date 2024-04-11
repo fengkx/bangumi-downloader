@@ -19,6 +19,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
   private readonly _cachePrefix = "gm-info";
   private chatPrompt: ChatPromptTemplate<{ title: string }>;
   private readonly _ratelimitter = RateLimit(20, { timeUnit: 1000 * 60 });
+
   constructor(API_KEY: string, private readonly storage?: StorageRepo) {
     super();
     this.model = new ChatGoogleGenerativeAI({
