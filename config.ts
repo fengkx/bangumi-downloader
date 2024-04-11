@@ -8,7 +8,7 @@ export default defineConfig({
   job_concurrency: 8,
   prefer_subtitle_lang: ["zh-Hant", "zh-Hans", "ja"],
   baseFolder: "BANGUMI_test",
-  notificationer: {
+  notifier: {
     type: "telegram",
     user_id: Deno.env.get("TELEGRAM_USERID") ?? "",
     token: Deno.env.get("TELEGRAM_TOKEN") ?? "",

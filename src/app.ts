@@ -11,7 +11,7 @@ import {
 import { StorageRepo } from "./db/kysely.ts";
 import { BangumiDownloaderConfig } from "./config/init-config.ts";
 import { arrayEqualIgnoredOrder } from "./utils.ts";
-import { Notificationer } from "./core/notificationer/base.ts";
+import { Notifier } from "./core/notifier/base.ts";
 
 export class App {
   constructor(
@@ -20,7 +20,7 @@ export class App {
     private readonly downloader: Downloader,
     private readonly storage: StorageRepo,
     private readonly config: BangumiDownloaderConfig,
-    private readonly notificationer?: Notificationer
+    private readonly notifier?: Notifier,
   ) {
   }
 
@@ -214,12 +214,14 @@ export class App {
     } else {
       await this.downloadEpisode(episode);
       // TODO pusher
-      if(this.notificationer) {
-        const cn_title = (await this.infoExtractor.getSimpleCnTitle?.(episode)) ?? episode.extractedInfo.cn_title;
-        const text = `Downloaded ${episode.title} ${episode.extractedInfo.episode_number}  #${cn_title} #${episode.extractedInfo.title} `
-        this.notificationer.sendNotification(text);
+      if (this.notifier) {
+        const cn_title =
+          (await this.infoExtractor.getSimpleCnTitle?.(episode)) ??
+            episode.extractedInfo.cn_title;
+        const text =
+          `Downloaded ${episode.title} ${episode.extractedInfo.episode_number}  #${cn_title} #${episode.extractedInfo.title} `;
+        this.notifier.sendNotification(text);
       }
-
     }
   }
 
