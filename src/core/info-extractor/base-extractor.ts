@@ -3,14 +3,16 @@ import { simplecc } from "npm:simplecc-wasm";
 import { getSubjectById } from "./utils/bangumi-api.ts";
 
 export class BaseExtractor {
-  async makeFolderName(ep: EpisodeWithRsourceInfo): Promise<string> {
+  async getSimpleCnTitle(ep: EpisodeWithRsourceInfo): Promise<string> {
     if (ep.bangumiSubjectId) {
-      console.log(ep.bangumiSubjectId, "makeFolderName");
       const bgmSubject = await getSubjectById(ep.bangumiSubjectId);
       console.log(bgmSubject.name_cn);
       return simplecc(bgmSubject.name_cn, "t2s");
     }
     return simplecc(ep.extractedInfo.cn_title, "t2s");
+  }
+  async makeFolderName(ep: EpisodeWithRsourceInfo): Promise<string> {
+    return await this.getSimpleCnTitle(ep);
   }
   async makeFileName(ep: EpisodeWithRsourceInfo): Promise<string> {
     const { episode_number } = ep.extractedInfo;
@@ -21,8 +23,21 @@ export class BaseExtractor {
   }
 
   getId(ep: EpisodeWithRsourceInfo): string {
-    return `${
-      simplecc(ep.extractedInfo.cn_title ?? ep.extractedInfo.title, "t2s")
-    }_${ep.extractedInfo.episode_number}`;
+    const kvs = new Map<string, string>();
+
+    kvs.set("bgm_id", String(ep.bangumiSubjectId || ""));
+    if (ep.bangumiSubjectId) {
+      kvs.set("cn_title", ep.extractedInfo.cn_title);
+    }
+
+    kvs.set("episode_number", String(ep.extractedInfo.episode_number || ""));
+    const id = Array.from(kvs.entries()).filter(([_k, v]) => {
+      return v.length > 0;
+    }).sort((a, b) => {
+      return a[0].charCodeAt(0) - b[0].charCodeAt(0);
+    }).map(([k, v]) => {
+      return `${k}:${v};`;
+    }).join("$$");
+    return id;
   }
 }
