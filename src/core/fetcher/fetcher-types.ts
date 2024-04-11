@@ -1,5 +1,3 @@
-import type { BangumiDownloaderConfig } from "../../config/init-config.ts";
-
 export type EpisodeInfo = {
   guid: string;
   title: string;

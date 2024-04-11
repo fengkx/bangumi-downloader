@@ -14,6 +14,7 @@ export class BaseExtractor {
   async makeFolderName(ep: EpisodeWithRsourceInfo): Promise<string> {
     return await this.getSimpleCnTitle(ep);
   }
+  // deno-lint-ignore require-await
   async makeFileName(ep: EpisodeWithRsourceInfo): Promise<string> {
     const { episode_number } = ep.extractedInfo;
     if (typeof episode_number === "string" && /^\d+$/.test(episode_number)) {
