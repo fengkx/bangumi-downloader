@@ -26,8 +26,9 @@ export class BaseExtractor {
   getId(ep: EpisodeWithRsourceInfo): string {
     const kvs = new Map<string, string>();
 
-    kvs.set("bgm_id", String(ep.bangumiSubjectId || ""));
-    if (!ep.bangumiSubjectId) {
+    const bgm_id = String(ep.bangumiSubjectId || "");
+    kvs.set("bgm_id", bgm_id);
+    if (!bgm_id) {
       kvs.set("cn_title", ep.extractedInfo.cn_title);
     }
 
