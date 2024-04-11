@@ -1,3 +1,3 @@
 export interface Notifier {
-  sendNotification(text: string): Promise<void>;
+  sendNotification(text: string, mediaUrl?: string): Promise<void>;
 }

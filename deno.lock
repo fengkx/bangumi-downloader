@@ -11,6 +11,7 @@
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:async-retry": "npm:async-retry@1.3.3",
       "npm:async-sema": "npm:async-sema@3.1.1",
+      "npm:async-wait-until": "npm:async-wait-until@2.0.12",
       "npm:defu": "npm:defu@6.1.4",
       "npm:dequal": "npm:dequal@2.0.3",
       "npm:escape-goat": "npm:escape-goat@4.0.0",
@@ -20,6 +21,7 @@
       "npm:kysely@^0.27.2": "npm:kysely@0.27.2",
       "npm:magicast": "npm:magicast@0.3.3",
       "npm:node-telegram-bot-api": "npm:node-telegram-bot-api@0.65.1_@cypress+request@3.0.1",
+      "npm:retry-assert": "npm:retry-assert@1.2.0",
       "npm:simplecc-wasm": "npm:simplecc-wasm@0.1.5",
       "npm:type-fest": "npm:type-fest@4.10.2"
     },
@@ -191,6 +193,10 @@
       },
       "async-sema@3.1.1": {
         "integrity": "sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==",
+        "dependencies": {}
+      },
+      "async-wait-until@2.0.12": {
+        "integrity": "sha512-SXy/vDs6UPJMG6YeEYOQ4ilA/JnGxk187KPGqFx9O+qVxsjkSl+jH+3P50qSNyMpEmDgr8qOFGOKCJckWb1i7A==",
         "dependencies": {}
       },
       "asynckit@0.4.0": {
@@ -1007,6 +1013,10 @@
         "integrity": "sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==",
         "dependencies": {}
       },
+      "retry-assert@1.2.0": {
+        "integrity": "sha512-mJYyyAXkBEhxCbP3EFDFJ1JE4Xk8GOruqV5g0RneOjJEpFGpPCvE00SeHpvvMG3irp+yYW/C1xw9EComtyHUCw==",
+        "dependencies": {}
+      },
       "retry@0.13.1": {
         "integrity": "sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==",
         "dependencies": {}
@@ -1287,6 +1297,7 @@
     }
   },
   "redirects": {
+    "http://esm.sh/ky": "https://esm.sh/ky@1.2.3",
     "https://deno.land/std/fs/mod.ts": "https://deno.land/std@0.216.0/fs/mod.ts",
     "https://deno.land/x/rss/mod.ts": "https://deno.land/x/rss@1.0.0/mod.ts",
     "https://deno.land/x/sqlite/mod.ts": "https://deno.land/x/sqlite@v3.8/mod.ts",

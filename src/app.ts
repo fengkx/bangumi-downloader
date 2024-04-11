@@ -189,16 +189,18 @@ export class App {
 
     const folderPath = pathJoin(this.config.baseFolder, folderName);
     console.info(`Downloading ${episode.title}`);
-    const { id: file_id, name } = await this.downloader.downLoadToPath(
-      episode.torrent.url,
-      folderPath,
-    );
+    const { id: file_id, name, mediaUrl } = await this.downloader
+      .downLoadToPath(
+        episode.torrent.url,
+        folderPath,
+      );
     await this.storage.setMediaItemById(id, {
       file_id,
       file_name: name,
       folder_name: folderPath,
       raw_title: episode.title,
     });
+    return { file_id, name, mediaUrl };
   }
 
   async doOne(episode: EpisodeWithRsourceInfo) {
@@ -212,15 +214,15 @@ export class App {
         await this.downloadEpisode(episode);
       }
     } else {
-      await this.downloadEpisode(episode);
+      const { mediaUrl } = await this.downloadEpisode(episode);
       // TODO pusher
       if (this.notifier) {
         const cn_title =
           (await this.infoExtractor.getSimpleCnTitle?.(episode)) ??
             episode.extractedInfo.cn_title;
         const text =
-          `Downloaded ${episode.title} ${episode.extractedInfo.episode_number}  #${cn_title} #${episode.extractedInfo.title} `;
-        this.notifier.sendNotification(text);
+          `Downloaded ${cn_title} ${episode.extractedInfo.episode_number} #${episode.extractedInfo.title} #${cn_title}\n${episode.title}`;
+        this.notifier.sendNotification(text, mediaUrl);
       }
     }
   }

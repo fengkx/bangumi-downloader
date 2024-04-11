@@ -6,9 +6,13 @@ export class TelegramNotifier extends TelegramBot implements Notifier {
   constructor(private readonly config: BangumiDownloaderConfig) {
     super(config.notifier.token);
   }
-  async sendNotification(text: string): Promise<void> {
-    await this.sendMessage(this.config.notifier.user_id, text, {
-      parse_mode: "html",
-    });
+  async sendNotification(text: string, mediaUrl?: string): Promise<void> {
+    if (mediaUrl) {
+      // await this.
+    } else {
+      await this.sendMessage(this.config.notifier.user_id, text, {
+        parse_mode: "html",
+      });
+    }
   }
 }
