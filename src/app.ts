@@ -206,7 +206,8 @@ export class App {
   async doOne(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
     const media = await this.storage.getMediaItemById(id);
-    if (media && await this.downloader.isFileExist(media.file_id)) {
+    const isFileExisted = await this.downloader.isFileExist(media.file_id);
+    if (media && isFileExisted) {
       if (media.raw_title === episode.title) {
         console.log(`Already existed Skip downoading ${media.file_name}`);
       } else {
@@ -215,14 +216,13 @@ export class App {
       }
     } else {
       const { mediaUrl } = await this.downloadEpisode(episode);
-      // TODO pusher
       if (this.notifier) {
         const cn_title =
           (await this.infoExtractor.getSimpleCnTitle?.(episode)) ??
             episode.extractedInfo.cn_title;
         const text = `Downloaded #${cn_title} ${
           episode.extractedInfo.episode_number ?? ""
-        }`;
+        } ${id} `;
         await this.notifier.sendNotification(text, mediaUrl);
       }
     }

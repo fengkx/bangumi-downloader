@@ -446,4 +446,18 @@ export const examples: Array<{ input: string; output: ResourceInfo }> = [{
     version: "1",
     subtitle_kind: "unknown",
   },
+}, {
+  input:
+    "[LoliHouse] 关于我转生变成史莱姆这档事 第三季 / Tensei Shitara Slime Datta Ken 3rd Season - 00(48.5) [WebRip 1080p HEVC-10bit AAC][简繁内封字幕]",
+  output: {
+    "cn_title": "关于我转生变成史莱姆这档事 第三季",
+    "title": "Tensei Shitara Slime Datta Ken 3rd Season",
+    "subtitle_source": "LoliHouse",
+    "episode_number": "48.5",
+    "container_format": "mp4",
+    "subtitle_lang": ["zh-Hans", "zh-Hant"],
+    "resolution": { "width": 1920, "height": 1080 },
+    "subtitle_kind": "embedding",
+    version: "1",
+  },
 }];
