@@ -27,7 +27,7 @@ export class BaseExtractor {
     const kvs = new Map<string, string>();
 
     kvs.set("bgm_id", String(ep.bangumiSubjectId || ""));
-    if (ep.bangumiSubjectId) {
+    if (!ep.bangumiSubjectId) {
       kvs.set("cn_title", ep.extractedInfo.cn_title);
     }
 
