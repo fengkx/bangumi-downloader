@@ -447,15 +447,14 @@ export class PikPakClient implements Downloader {
             if (task?.phase === "PHASE_TYPE_COMPLETE") {
               file_id = task.file_id;
               mediaUrl = await this.getDownloadUrl(file_id);
-              return true;
-            } else {
-              return false;
+              return file_id;
             }
+            return false;
           } catch (_error) {
             return undefined;
           }
         },
-        { timeout: 5 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
+        { timeout: 3 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
       );
     } catch (error) {
       console.error(

@@ -15,25 +15,25 @@ async function main() {
 
   try {
     const config = defineConfig({
-        feedUrls: [
-          "https://mikanani.me/RSS/Bangumi?bangumiId=3240&subgroupid=12",
-          "https://mikanani.me/RSS/Bangumi?bangumiId=3141&subgroupid=583",
-          "https://mikanani.me/RSS/Bangumi?bangumiId=3215&subgroupid=34",
-          "https://mikanani.me/RSS/Bangumi?bangumiId=1505&subgroupid=422",
-          "https://mikanani.me/RSS/Bangumi?bangumiId=3330&subgroupid=44",
-          "https://mikanani.me/RSS/Bangumi?bangumiId=3341&subgroupid=370",
-        ],
-        feed_concurrency: 4,
-        job_concurrency: 8,
-        prefer_subtitle_lang: ["zh-Hant", "zh-Hans", "ja"],
-        baseFolder: "BANGUMI",
-        notifier: {
-          type: "telegram",
-          user_id: Deno.env.get("TELEGRAM_USERID") ?? "",
-          token: Deno.env.get("TELEGRAM_TOKEN") ?? "",
-        },
-      });
-      
+      feedUrls: [
+        "https://mikanani.me/RSS/Bangumi?bangumiId=3240&subgroupid=12",
+        "https://mikanani.me/RSS/Bangumi?bangumiId=3141&subgroupid=583",
+        "https://mikanani.me/RSS/Bangumi?bangumiId=3215&subgroupid=34",
+        "https://mikanani.me/RSS/Bangumi?bangumiId=1505&subgroupid=422",
+        "https://mikanani.me/RSS/Bangumi?bangumiId=3330&subgroupid=44",
+        "https://mikanani.me/RSS/Bangumi?bangumiId=3341&subgroupid=370",
+      ],
+      feed_concurrency: 4,
+      job_concurrency: 8,
+      prefer_subtitle_lang: ["zh-Hant", "zh-Hans", "ja"],
+      baseFolder: "BANGUMI",
+      notifier: {
+        type: "telegram",
+        user_id: Deno.env.get("TELEGRAM_USERID") ?? "",
+        token: Deno.env.get("TELEGRAM_TOKEN") ?? "",
+      },
+    });
+
     const downloader = new FakeDownloader();
     await downloader.init();
 
@@ -63,9 +63,8 @@ async function main() {
   } catch (error) {
     console.error(error);
   } finally {
-    await storage?.close()
+    await storage?.close();
   }
 }
 
-
-Deno.test('test main', main)
+Deno.test("test main", main);

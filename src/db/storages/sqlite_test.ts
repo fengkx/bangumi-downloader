@@ -1,8 +1,8 @@
 import { assertEquals } from "https://deno.land/std@0.222.1/assert/mod.ts";
 import { fromFileUrl } from "https://deno.land/std@0.216.0/path/from_file_url.ts";
 import {
-  beforeAll,
   afterAll,
+  beforeAll,
   describe,
   it,
 } from "https://deno.land/std@0.222.1/testing/bdd.ts";
@@ -27,5 +27,5 @@ describe("sqlite storage test", () => {
 
   afterAll(async () => {
     await storage.close();
-  })
+  });
 });

@@ -33,6 +33,7 @@ export async function main(options: { configFile: string }) {
     await app.run();
 
     console.log("RUN Finished");
+    await storage.close();
   } catch (error) {
     console.error(error);
   }
