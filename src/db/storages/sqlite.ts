@@ -1,46 +1,48 @@
 import { Except } from "npm:type-fest";
+import {stringify} from "npm:safe-stable-stringify";
 
 import { getDb, MediaItem, migrateToLatest, StorageRepo } from "../kysely.ts";
 import type { Cache } from "../db-types.ts";
 
 export class SQLiteStorage implements StorageRepo {
-  static async create() {
-    await migrateToLatest();
-    return new SQLiteStorage();
+  constructor(private readonly dbPath?: string) {}
+  static async create(dbPath: string) {
+    await migrateToLatest(dbPath);
+    return new SQLiteStorage(dbPath);
   }
 
   async cacheSet<T>(k: string, value: T) {
-    const db = getDb();
+    const db = getDb(this.dbPath);
     const r = await db.insertInto("_cache").values({
       key: k,
-      value: JSON.stringify(value),
+      value: stringify(value) ?? '',
     }).returningAll()
       .onConflict((ocb) => {
-        return ocb.column("key").doUpdateSet({ value: JSON.stringify(value) });
+        return ocb.column("key").doUpdateSet({ value: stringify(value) });
       })
       .execute();
     return r[0];
   }
   async cacheGet<T>(k: string) {
-    const db = getDb();
+    const db = getDb(this.dbPath);
     const r = await db.selectFrom("_cache").where("key", "=", k).selectAll()
       .executeTakeFirst();
     if (r) {
-      // @ts-expect-error overide json
+      // @ts-expect-error force to parse json
       r.value = JSON.parse(r.value);
       return r as Except<Cache, "value"> & { value: T };
     }
     return undefined;
   }
   async getMediaItemById(id: string): Promise<MediaItem | undefined> {
-    const db = getDb();
+    const db = getDb(this.dbPath);
     return await db.selectFrom("medias").where("id", "=", id).selectAll().limit(
       1,
     ).executeTakeFirst();
   }
 
   async setMediaItemById(id: string, m: MediaItem): Promise<void> {
-    const db = getDb();
+    const db = getDb(this.dbPath);
     const existed = await this.getMediaItemById(id);
     if (!existed) {
       await db.insertInto("medias").values({
@@ -60,19 +62,19 @@ export class SQLiteStorage implements StorageRepo {
     }
   }
   async removeMediaItemById(ids: string[]): Promise<void> {
-    const db = getDb();
+    const db = getDb(this.dbPath);
     await db.deleteFrom("medias").where("id", "in", ids).execute();
   }
 
   async getMediaItemsNotInIds(ids: string[]): Promise<MediaItem[]> {
-    const db = getDb();
+    const db = getDb(this.dbPath);
     const rows = await db.selectFrom("medias").where("id", "not in", ids)
       .selectAll().execute();
     return rows;
   }
 
-  async findMediaByRawTitle(raw_title: string): Promise<any> {
-    const db = getDb();
+  async findMediaByRawTitle(raw_title: string): Promise<MediaItem| undefined> {
+    const db = getDb(this.dbPath);
     return await db.selectFrom("medias").where("raw_title", "=", raw_title).selectAll().limit(
       1,
     ).executeTakeFirst();

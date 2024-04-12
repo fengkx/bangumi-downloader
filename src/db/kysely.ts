@@ -13,23 +13,23 @@ import { MediaRow } from "./db-types.ts";
 export type Db = Kysely<Database>;
 
 let db: Db;
-export const getDb = () => {
+export const getDb = (path?: string) => {
   if (db) {
     return db;
   }
   db = new Kysely<Database>({
     dialect: new DenoSqliteDialect({
       database: new DB(
-        fromFileUrl(new URL("../../data/db.sqlite3", import.meta.url)),
+        path ?? fromFileUrl(new URL("../../data/db.sqlite3", import.meta.url)),
       ),
     }),
   });
   return db;
 };
 
-export async function migrateToLatest() {
+export async function migrateToLatest(dbPath?: string) {
   const migrator = new Migrator({
-    db: getDb(),
+    db: getDb(dbPath),
     provider: new FileMigrationProvider(
       new URL("migrations/", import.meta.url),
     ),
