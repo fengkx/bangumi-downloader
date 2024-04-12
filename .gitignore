@@ -2,3 +2,4 @@
 .cache
 .deno_cache
 tests/fixtures/*.sqlite3
+tests/fixtures/*.sqlite3
