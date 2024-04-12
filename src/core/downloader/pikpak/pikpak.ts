@@ -448,6 +448,8 @@ export class PikPakClient implements Downloader {
               file_id = task.file_id;
               mediaUrl = await this.getDownloadUrl(file_id);
               return true;
+            } else {
+              return false;
             }
           } catch (_error) {
             return undefined;
