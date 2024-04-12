@@ -417,7 +417,7 @@ export class PikPakClient implements Downloader {
           return undefined;
         }
       },
-      { timeout: 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
+      { timeout: 3 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
     );
     return { id: res.task.file_id, name: res.task.file_name, mediaUrl };
   }
