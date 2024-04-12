@@ -1,3 +1,4 @@
 .env
 .cache
 .deno_cache
+tests/fixtures/*.sqlite3

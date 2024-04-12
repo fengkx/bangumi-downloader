@@ -1,12 +1,12 @@
 import { Except } from "npm:type-fest";
-import {stringify} from "npm:safe-stable-stringify";
+import { stringify } from "npm:safe-stable-stringify";
 
 import { getDb, MediaItem, migrateToLatest, StorageRepo } from "../kysely.ts";
 import type { Cache } from "../db-types.ts";
 
 export class SQLiteStorage implements StorageRepo {
   constructor(private readonly dbPath?: string) {}
-  static async create(dbPath: string) {
+  static async create(dbPath?: string) {
     await migrateToLatest(dbPath);
     return new SQLiteStorage(dbPath);
   }
@@ -15,7 +15,7 @@ export class SQLiteStorage implements StorageRepo {
     const db = getDb(this.dbPath);
     const r = await db.insertInto("_cache").values({
       key: k,
-      value: stringify(value) ?? '',
+      value: stringify(value) ?? "",
     }).returningAll()
       .onConflict((ocb) => {
         return ocb.column("key").doUpdateSet({ value: stringify(value) });
@@ -28,7 +28,7 @@ export class SQLiteStorage implements StorageRepo {
     const r = await db.selectFrom("_cache").where("key", "=", k).selectAll()
       .executeTakeFirst();
     if (r) {
-      // @ts-expect-error force to parse json
+      // @ts-ignore force to parse json
       r.value = JSON.parse(r.value);
       return r as Except<Cache, "value"> & { value: T };
     }
@@ -73,10 +73,15 @@ export class SQLiteStorage implements StorageRepo {
     return rows;
   }
 
-  async findMediaByRawTitle(raw_title: string): Promise<MediaItem| undefined> {
+  async findMediaByRawTitle(raw_title: string): Promise<MediaItem | undefined> {
     const db = getDb(this.dbPath);
-    return await db.selectFrom("medias").where("raw_title", "=", raw_title).selectAll().limit(
-      1,
-    ).executeTakeFirst();
+    return await db.selectFrom("medias").where("raw_title", "=", raw_title)
+      .selectAll().limit(
+        1,
+      ).executeTakeFirst();
+  }
+  async close() {
+    const db = getDb(this.dbPath);
+    return await db.destroy();
   }
 }

@@ -38,7 +38,7 @@ export class MikanAni implements Fetcher {
           url: entry.attachments?.find((item) =>
             item.mimeType === "application/x-bittorrent"
           )?.url!,
-          pubDate: torrent?.pubDate.value
+          pubDate: torrent?.pubDate.value,
         },
         bangumiSubjectId: subjectId,
       };

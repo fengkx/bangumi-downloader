@@ -14,7 +14,9 @@ import { BangumiDownloaderConfig } from "./config/init-config.ts";
 import { arrayEqualIgnoredOrder } from "./utils.ts";
 import { Notifier } from "./core/notifier/base.ts";
 
-const disableCached = ['true', '1'].includes((Deno.env.get('NO_CACHE') || 'false').trim())
+const disableCached = ["true", "1"].includes(
+  (Deno.env.get("NO_CACHE") || "false").trim(),
+);
 
 export class App {
   constructor(
@@ -60,32 +62,31 @@ export class App {
     const episodes = await this.fetcher.getEpisodes(feedUrl);
 
     const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
-      episodes.filter((item => {
-        
+      episodes.filter((item) => {
         return true;
-      })).map(async (ep) => {
+      }).map(async (ep) => {
         let info: ResourceInfo | undefined = undefined;
         const cacheKey = `$ie:${ep.title}`;
 
-        
-        if(ep.torrent.pubDate && !disableCached) {
+        if (ep.torrent.pubDate && !disableCached) {
           // have pubDate
           const now = Date.now();
           const pubTs = ep.torrent.pubDate.getTime();
-          if ( (now - pubTs) > (30 * 24 * 3600 * 1000)) {
+          if ((now - pubTs) > (30 * 24 * 3600 * 1000)) {
             // 30 days agos
-            const cachedItem = await this.storage.cacheGet<ResourceInfo>(cacheKey);
-            if(cachedItem) {
-              info = cachedItem.value
+            const cachedItem = await this.storage.cacheGet<ResourceInfo>(
+              cacheKey,
+            );
+            if (cachedItem) {
+              info = cachedItem.value;
             }
-            
           }
         }
-        if(!info) {
+        if (!info) {
           info = await this.infoExtractor.getInfoFromTitle(ep.title);
-          this.storage.cacheSet(cacheKey, info)
+          this.storage.cacheSet(cacheKey, info);
         }
-        
+
         return { ...ep, extractedInfo: info };
       }),
     );
@@ -93,7 +94,7 @@ export class App {
     const sema = new Sema(this.config.job_concurrency, {
       capacity: episodes.length,
     });
-    
+
     await Promise.all(
       this.pickBestItem(episodesWithInfo).map(
         async (ep) => {
@@ -201,7 +202,9 @@ export class App {
   private findSubtitleLangIndex(subtitle_lang: string[]) {
     let index = -1;
     for (let i = 0; i < subtitle_lang.length; i++) {
-      const idx = this.config.prefer_subtitle_lang.indexOf(subtitle_lang[i]);
+      const idx = (this.config.prefer_subtitle_lang as string[]).indexOf(
+        subtitle_lang[i],
+      );
       if (idx >= 0 && (idx < index || index === -1)) {
         index = idx;
       }
@@ -221,7 +224,7 @@ export class App {
         episode.torrent.url,
         folderPath,
       );
-    console.debug(`id: ${id} file_id: ${file_id} file_name: ${name}`)
+    console.debug(`id: ${id} file_id: ${file_id} file_name: ${name}`);
     await this.storage.setMediaItemById(id, {
       file_id,
       file_name: name,
@@ -234,7 +237,8 @@ export class App {
   async doOne(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
     const media = await this.storage.getMediaItemById(id);
-    const isFileExisted = media && await this.downloader.isFileExist(media?.file_id);
+    const isFileExisted = media &&
+      await this.downloader.isFileExist(media?.file_id);
     if (isFileExisted) {
       if (media.raw_title === episode.title) {
         console.log(`Already existed Skip downoading ${media.file_name}`);

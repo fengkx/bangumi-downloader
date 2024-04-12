@@ -422,7 +422,9 @@ export class PikPakClient implements Downloader {
         { timeout: 3 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
       );
     } catch (error) {
-      console.error(`Failed to get media url for ${res.task.file_name} Cause: ${error.message}`);
+      console.error(
+        `Failed to get media url for ${res.task.file_name} Cause: ${error.message}`,
+      );
     }
     return { id: res.task.file_id, name: res.task.file_name, mediaUrl };
   }

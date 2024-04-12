@@ -12,18 +12,22 @@ import { MediaRow } from "./db-types.ts";
 
 export type Db = Kysely<Database>;
 
-let db: Db;
+const dbInstanceCache = new Map<string, Db>();
 export const getDb = (path?: string) => {
-  if (db) {
-    return db;
+  const dbPath = path ??
+    fromFileUrl(new URL("../../data/db.sqlite3", import.meta.url));
+  if (dbInstanceCache.has(dbPath)) {
+    return dbInstanceCache.get(dbPath) as Db;
   }
-  db = new Kysely<Database>({
+
+  const db = new Kysely<Database>({
     dialect: new DenoSqliteDialect({
       database: new DB(
-        path ?? fromFileUrl(new URL("../../data/db.sqlite3", import.meta.url)),
+        dbPath === ":memory:" ? undefined : dbPath,
       ),
     }),
   });
+  dbInstanceCache.set(dbPath, db);
   return db;
 };
 
