@@ -58,12 +58,12 @@ export class App {
 
     const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
       episodes.filter((item => {
-        if(item.torrent.pubDate) {
-          const now = Date.now();
-          const pubTs = item.torrent.pubDate.getTime();
+        // if(item.torrent.pubDate) {
+        //   const now = Date.now();
+        //   const pubTs = item.torrent.pubDate.getTime();
           
-          return (now - pubTs) < (60 * 24 * 3600 * 1000)
-        }
+        //   return (now - pubTs) < (60 * 24 * 3600 * 1000)
+        // }
         return true;
       })).map(async (ep) => {
         const info = await this.infoExtractor.getInfoFromTitle(ep.title);
