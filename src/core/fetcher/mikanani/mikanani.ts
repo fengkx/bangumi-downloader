@@ -27,15 +27,18 @@ export class MikanAni implements Fetcher {
       console.info(`Failed to get bgm.tv subject id ${error.message}`);
     }
     const episode: EpisodeInfo[] = feed.entries.map((entry) => {
+      // @ts-expect-error mikan have torrent field
+      const torrent = entry.torrent;
       return {
         guid: entry.id,
         title: entry.title?.value!,
-        // @ts-expect-error mikan have torrent field
-        detailLink: entry.torrent?.link?.value,
+
+        detailLink: torrent?.link?.value,
         torrent: {
           url: entry.attachments?.find((item) =>
             item.mimeType === "application/x-bittorrent"
           )?.url!,
+          pubDate: torrent?.pubDate.value
         },
         bangumiSubjectId: subjectId,
       };

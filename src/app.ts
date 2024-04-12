@@ -37,7 +37,6 @@ export class App {
       ids.forEach((id) => usedIds.add(id));
       sema.release();
     }));
-
     const mediasToDelete = await this.storage.getMediaItemsNotInIds(
       Array.from(usedIds),
     );
@@ -58,7 +57,15 @@ export class App {
     const episodes = await this.fetcher.getEpisodes(feedUrl);
 
     const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
-      episodes.map(async (ep) => {
+      episodes.filter((item => {
+        if(item.torrent.pubDate) {
+          const now = Date.now();
+          const pubTs = item.torrent.pubDate.getTime();
+          
+          return (now - pubTs) < (60 * 24 * 3600 * 1000)
+        }
+        return true;
+      })).map(async (ep) => {
         const info = await this.infoExtractor.getInfoFromTitle(ep.title);
         return { ...ep, extractedInfo: info };
       }),
@@ -67,6 +74,7 @@ export class App {
     const sema = new Sema(this.config.job_concurrency, {
       capacity: episodes.length,
     });
+    
     await Promise.all(
       this.pickBestItem(episodesWithInfo).map(
         async (ep) => {
@@ -194,6 +202,7 @@ export class App {
         episode.torrent.url,
         folderPath,
       );
+    console.debug(`id: ${id} file_id: ${file_id} file_name: ${name}`)
     await this.storage.setMediaItemById(id, {
       file_id,
       file_name: name,
@@ -206,8 +215,8 @@ export class App {
   async doOne(episode: EpisodeWithRsourceInfo) {
     const id = this.infoExtractor.getId(episode);
     const media = await this.storage.getMediaItemById(id);
-    const isFileExisted = await this.downloader.isFileExist(media.file_id);
-    if (media && isFileExisted) {
+    const isFileExisted = media && await this.downloader.isFileExist(media?.file_id);
+    if (isFileExisted) {
       if (media.raw_title === episode.title) {
         console.log(`Already existed Skip downoading ${media.file_name}`);
       } else {

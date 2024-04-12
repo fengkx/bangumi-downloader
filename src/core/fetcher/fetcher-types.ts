@@ -4,6 +4,7 @@ export type EpisodeInfo = {
   detailLink?: string;
   torrent: {
     url: string;
+    pubDate?: Date
   };
   bangumiSubjectId?: number;
 };
