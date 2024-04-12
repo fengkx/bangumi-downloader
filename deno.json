@@ -2,6 +2,6 @@
   "tasks": {
     "run": "deno run --allow-env --allow-read --allow-write='./data,./src' --allow-net ./src/main.ts --config ./config.ts",
     "add": "deno run --allow-env --allow-read --allow-net --allow-write='./config.ts' ./src/main.ts config add --config ./config.ts",
-    "test": "deno test --allow-read --allow-write='./tests/fixtures'"
+    "test": "deno test --allow-env  --allow-net --allow-read --allow-write='./tests/fixtures'"
   }
 }
