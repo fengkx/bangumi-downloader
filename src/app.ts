@@ -14,6 +14,8 @@ import { BangumiDownloaderConfig } from "./config/init-config.ts";
 import { arrayEqualIgnoredOrder } from "./utils.ts";
 import { Notifier } from "./core/notifier/base.ts";
 
+const disableCached = ['true', '1'].includes((Deno.env.get('NO_CACHE') || 'false').trim())
+
 export class App {
   constructor(
     private readonly fetcher: Fetcher,
@@ -65,12 +67,12 @@ export class App {
         let info: ResourceInfo | undefined = undefined;
         const cacheKey = `$ie:${ep.title}`;
 
-        if(ep.torrent.pubDate) {
+        
+        if(ep.torrent.pubDate && !disableCached) {
           // have pubDate
           const now = Date.now();
           const pubTs = ep.torrent.pubDate.getTime();
-          
-          if ((now - pubTs) > (30 * 24 * 3600 * 1000)) {
+          if ( (now - pubTs) > (30 * 24 * 3600 * 1000)) {
             // 30 days agos
             const cachedItem = await this.storage.cacheGet<ResourceInfo>(cacheKey);
             if(cachedItem) {
