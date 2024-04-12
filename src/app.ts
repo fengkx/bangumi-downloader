@@ -7,6 +7,7 @@ import { Fetcher } from "./core/fetcher/fetcher-types.ts";
 import {
   EpisodeWithRsourceInfo,
   Extractor,
+  ResourceInfo,
 } from "./core/info-extractor/common.ts";
 import { StorageRepo } from "./db/kysely.ts";
 import { BangumiDownloaderConfig } from "./config/init-config.ts";
@@ -58,16 +59,31 @@ export class App {
 
     const episodesWithInfo: EpisodeWithRsourceInfo[] = await Promise.all(
       episodes.filter((item => {
-        // if(item.torrent.pubDate) {
-        //   const now = Date.now();
-        //   const pubTs = item.torrent.pubDate.getTime();
-          
-        //   return (now - pubTs) < (60 * 24 * 3600 * 1000)
-        // }
+        
         return true;
       })).map(async (ep) => {
-        const info = await this.infoExtractor.getInfoFromTitle(ep.title);
-        this.storage.cacheSet(`$ie:${ep.title}`, info)
+        let info: ResourceInfo | undefined = undefined;
+        const cacheKey = `$ie:${ep.title}`;
+
+        if(ep.torrent.pubDate) {
+          // have pubDate
+          const now = Date.now();
+          const pubTs = ep.torrent.pubDate.getTime();
+          
+          if ((now - pubTs) > (30 * 24 * 3600 * 1000)) {
+            // 30 days agos
+            const cachedItem = await this.storage.cacheGet<ResourceInfo>(cacheKey);
+            if(cachedItem) {
+              info = cachedItem.value
+            }
+            
+          }
+        }
+        if(!info) {
+          info = await this.infoExtractor.getInfoFromTitle(ep.title);
+        }
+        
+        this.storage.cacheSet(cacheKey, info)
         return { ...ep, extractedInfo: info };
       }),
     );
