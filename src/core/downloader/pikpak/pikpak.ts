@@ -17,7 +17,8 @@ import { RequestCreateFolder } from "./pikpak-types.ts";
 import type { Except } from "npm:type-fest";
 import { PikPakErrorResponse } from "./errors.ts";
 import { PikpakError } from "./errors.ts";
-import { PikpakDownloadTask } from "./pikpak-types.ts";
+import { PikpakDownloadTask, PikpakRequestListTasks } from "./pikpak-types.ts";
+import { PikpakTaskList } from "./pikpak-types.ts";
 
 export class PikPakClient implements Downloader {
   private clientId: string;
@@ -247,6 +248,34 @@ export class PikPakClient implements Downloader {
     return json as PikpakFileList;
   }
 
+  async getTask(
+    taskId: string,
+  ): Promise<PikpakDownloadTask["task"] | undefined> {
+    const url = `${this.pikpakDriveHost}/drive/v1/tasks/${taskId}`;
+    const resp = await this.client.get(url);
+    const json = await resp.json() as PikpakDownloadTask["task"];
+    return json;
+  }
+
+  async listTask(
+    inParams?: PikpakRequestListTasks,
+  ): Promise<PikpakTaskList> {
+    const params: PikpakRequestListTasks = defu(inParams, {
+      filters: {
+        phase: {
+          in: ["PHASE_TYPE_COMPLETE", "PHASE_TYPE_RUNNING", "PHASE_TYPE_ERROR"]
+            .join(","),
+        },
+      },
+    });
+    const resp = await this.client.get(
+      `${this.pikpakDriveHost}/drive/v1/tasks`,
+      { searchParams: { ...params, filters: JSON.stringify(params.filters) } },
+    );
+    const json = await resp.json();
+    return json as PikpakTaskList;
+  }
+
   private getLock(key: string) {
     let lock = this._lock.get(key);
     if (!lock) {
@@ -409,24 +438,33 @@ export class PikPakClient implements Downloader {
       name: fileName,
     });
     let mediaUrl = undefined;
+    let file_id = undefined;
     try {
-      mediaUrl = await wait.waitUntil(
+      await wait.waitUntil(
         async () => {
           try {
-            const mediaUrl = await this.getDownloadUrl(res.task.file_id);
-            return mediaUrl;
+            const task = await this.getTask(res.task.id);
+            if (task?.phase === "PHASE_TYPE_COMPLETE") {
+              file_id = task.file_id;
+              mediaUrl = await this.getDownloadUrl(file_id);
+              return true;
+            }
           } catch (_error) {
             return undefined;
           }
         },
-        { timeout: 3 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
+        { timeout: 5 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
       );
     } catch (error) {
       console.error(
-        `Failed to get media url for ${res.task.file_name} Cause: ${error.message}`,
+        `Failed to complete download task for ${res.task.file_name} Cause: ${error.message}`,
       );
     }
-    return { id: res.task.file_id, name: res.task.file_name, mediaUrl };
+    return {
+      id: file_id || res.task.file_id,
+      name: res.task.file_name,
+      mediaUrl,
+    };
   }
   async deleteToTrash(ids: string[]) {
     const url = `${this.pikpakDriveHost}/drive/v1/files:batchTrash`;

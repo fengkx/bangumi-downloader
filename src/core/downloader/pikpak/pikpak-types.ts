@@ -107,6 +107,18 @@ export type PikpakRequestListFiles = Partial<{
   thumbnail_size: ThumbnailSizeEnum;
 }>;
 
+export type PikpakRequestListTasks = Partial<{
+  limit: number; // 数量
+  page_token: string; // 页面id
+  filters: FiltersObj;
+}>;
+
+export type PikpakTaskList = {
+  tasks: Array<PikpakDownloadTask>;
+  next_page_token: string;
+  expires_in: number;
+};
+
 export type RequestCreateFolder = {
   kind: "drive#folder";
   name: string;
@@ -166,7 +178,7 @@ export type PikpakDownloadTask = {
     created_time: string;
     updated_time: string;
     third_task_id: string;
-    // phase: "PHASE_TYPE_RUNNING";
+    phase: string;
     progress: number;
     icon_link: string;
     callback: string;
