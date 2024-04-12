@@ -70,4 +70,11 @@ export class SQLiteStorage implements StorageRepo {
       .selectAll().execute();
     return rows;
   }
+
+  async findMediaByRawTitle(raw_title: string): Promise<any> {
+    const db = getDb();
+    return await db.selectFrom("medias").where("raw_title", "=", raw_title).selectAll().limit(
+      1,
+    ).executeTakeFirst();
+  }
 }

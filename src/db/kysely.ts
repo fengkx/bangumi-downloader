@@ -53,6 +53,7 @@ export interface StorageRepo {
   ): Promise<void>;
 
   getMediaItemsNotInIds(ids: string[]): Promise<MediaItem[]>;
+  findMediaByRawTitle(title: string): Promise<MediaItem | undefined>;
 
   removeMediaItemById(ids: string[]): Promise<void>;
 }
