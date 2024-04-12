@@ -408,17 +408,22 @@ export class PikPakClient implements Downloader {
       parent_id: folder.id,
       name: fileName,
     });
-    const mediaUrl = await wait.waitUntil(
-      async () => {
-        try {
-          const mediaUrl = await this.getDownloadUrl(res.task.file_id);
-          return mediaUrl;
-        } catch (_error) {
-          return undefined;
-        }
-      },
-      { timeout: 3 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
-    );
+    let mediaUrl = undefined;
+    try {
+      mediaUrl = await wait.waitUntil(
+        async () => {
+          try {
+            const mediaUrl = await this.getDownloadUrl(res.task.file_id);
+            return mediaUrl;
+          } catch (_error) {
+            return undefined;
+          }
+        },
+        { timeout: 3 * 60 * 1000, intervalBetweenAttempts: 5 * 1000 },
+      );
+    } catch (error) {
+      console.error(`Failed to get media url for ${res.task.file_name} Cause: ${error.message}`);
+    }
     return { id: res.task.file_id, name: res.task.file_name, mediaUrl };
   }
   async deleteToTrash(ids: string[]) {
