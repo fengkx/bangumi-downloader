@@ -83,9 +83,9 @@ export class App {
         }
         if(!info) {
           info = await this.infoExtractor.getInfoFromTitle(ep.title);
+          this.storage.cacheSet(cacheKey, info)
         }
         
-        this.storage.cacheSet(cacheKey, info)
         return { ...ep, extractedInfo: info };
       }),
     );

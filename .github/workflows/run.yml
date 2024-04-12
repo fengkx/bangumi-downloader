@@ -1,6 +1,6 @@
 name: Run downloader
 env:
-  DENO_DIR: ~/.deno_cache
+  DENO_DIR: .deno_cache
 
 on:
   workflow_dispatch: 
@@ -26,7 +26,9 @@ jobs:
       - name: Cache Deno dependencies 
         uses: actions/cache@v4
         with:
-          path: ${{ env.DENO_DIR }}
+          path: |
+            ${{ env.DENO_DIR }}
+            ${{ github.workspace }}/${{ env.DENO_DIR }}
           key: ${{ hashFiles('deno.lock') }}
 
       - name: Run downloader
