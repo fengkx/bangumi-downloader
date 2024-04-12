@@ -248,7 +248,7 @@ export class App {
             episode.extractedInfo.cn_title;
         const text = `Downloaded #${cn_title} ${
           episode.extractedInfo.episode_number ?? ""
-        } ${id} `;
+        }\n#${episode.extractedInfo.title}`;
         await this.notifier.sendNotification(text, mediaUrl);
       }
     }
