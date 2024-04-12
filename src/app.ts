@@ -67,6 +67,7 @@ export class App {
         return true;
       })).map(async (ep) => {
         const info = await this.infoExtractor.getInfoFromTitle(ep.title);
+        this.storage.cacheSet(`$ie:${ep.title}`, info)
         return { ...ep, extractedInfo: info };
       }),
     );
