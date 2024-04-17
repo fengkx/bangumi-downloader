@@ -2,7 +2,7 @@ import { defineConfig } from "./src/config/init-config.ts";
 
 export default defineConfig({
   feedUrls: [
-    "https://mikanani.me/RSS/Bangumi?bangumiId=3240",
+    "https://mikanani.me/RSS/Bangumi?bangumiId=3240&subgroupid=203",
     "https://mikanani.me/RSS/Bangumi?bangumiId=3141&subgroupid=583",
     "https://mikanani.me/RSS/Bangumi?bangumiId=3215&subgroupid=34",
     "https://mikanani.me/RSS/Bangumi?bangumiId=1505&subgroupid=422",
