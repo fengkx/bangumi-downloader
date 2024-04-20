@@ -460,4 +460,17 @@ export const examples: Array<{ input: string; output: ResourceInfo }> = [{
     "subtitle_kind": "embedding",
     version: "1",
   },
+}, {
+  input: "[桜都字幕组] 迷宫饭 / Dungeon Meshi [15][1080p][简繁内封]",
+  output: {
+    "cn_title": "迷宫饭",
+    "title": "Dungeon Meshi",
+    "subtitle_source": "桜都字幕组",
+    "episode_number": 15,
+    "container_format": "mp4",
+    "subtitle_lang": ["zh-Hans", "zh-Hant"],
+    "resolution": { "width": 1920, "height": 1080 },
+    "subtitle_kind": "embedding",
+    "version": "1",
+  },
 }];
