@@ -104,10 +104,10 @@ export class PikPakClient implements Downloader {
       hooks: {
         beforeRequest: [
           async (request) => {
-            request.headers.set(
-              "User-Agent",
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
-            );
+            // request.headers.set(
+            //   "User-Agent",
+            //   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+            // );
             const url = new URL(request.url);
             if (
               url.pathname.startsWith("/drive/v1")
@@ -150,11 +150,12 @@ export class PikPakClient implements Downloader {
       client_secret: this.clientSecret,
       username: this.username,
       password: this.password,
+      grant_type: "password",
     };
 
     try {
       const resp = await this.client.post(
-        `${this.pikpakUserHost}/v1/auth/signin`,
+        `${this.pikpakUserHost}/v1/auth/token`,
         {
           json: req,
         },
