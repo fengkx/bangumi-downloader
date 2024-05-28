@@ -36,5 +36,6 @@ export async function main(options: { configFile: string }) {
     await storage.close();
   } catch (error) {
     console.error(error);
+    Deno.exit(1);
   }
 }
