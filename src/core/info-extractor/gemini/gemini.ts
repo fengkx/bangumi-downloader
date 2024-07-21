@@ -59,6 +59,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       return cached.value as ResourceInfo;
     }
     const prompt = await this.chatPrompt.formatMessages({ title });
+    let jsonText;
 
     const r = await retry(async (_b, attempt) => {
       await this._ratelimitter();
@@ -67,7 +68,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       let s = String(r.content);
       s = s.trim();
       const match = /```(json)?(.*)```/s.exec(s);
-      const jsonText = match ? match[2] : s;
+      jsonText = match ? match[2] : s;
       const result = JSON.parse(jsonText) as ResourceInfo;
       if (result.cn_title && !title.includes(result.cn_title) && attempt < 3) {
         throw new Error(`${result.cn_title} is not existed in ${title}`);
@@ -78,7 +79,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       retries: 5,
       onRetry(e, attempt) {
         console.info(
-          `[Retries ${attempt}] extracting ${title} | Cause: ${e.message}`,
+          `[Retries ${attempt}] extracting ${title} | Cause: ${e.message} | ${jsonText}`,
         );
       },
     });
