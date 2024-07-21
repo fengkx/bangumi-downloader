@@ -23,11 +23,11 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
   constructor(API_KEY: string, private readonly storage?: StorageRepo) {
     super();
     this.model = new ChatGoogleGenerativeAI({
-      modelName: "gemini-pro",
+      modelName: "gemini-1.5-flash",
       maxOutputTokens: 4096,
       topK: 1,
       topP: 1,
-      temperature: 0.45,
+      temperature: 0,
       apiKey: API_KEY,
       safetySettings: [
         {
