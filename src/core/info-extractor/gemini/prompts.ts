@@ -486,4 +486,16 @@ export const examples: Array<{ input: string; output: ResourceInfo }> = [{
     "subtitle_kind": "embedding",
     "version": "1",
   },
+}, {
+  input: "【喵萌奶茶屋】★07月新番★[时不时会用俄语向我撒娇的邻座阿莉娅同学 / Roshidere][01][1080p][简日双语][招募翻译时轴]",
+  output: {
+    "cn_title":"时不时会用俄语向我撒娇的邻座阿莉娅同学",
+    "title": "Roshidere",
+    "subtitle_source": "喵萌奶茶屋",
+    "episode_number": 1,
+    "container_format": "mp4",
+    "subtitle_lang": ["zh-Hans","ja"],
+    "resolution": {"width":1920, "height":1080},
+    "subtitle_kind":"embedding"
+  }
 }];
