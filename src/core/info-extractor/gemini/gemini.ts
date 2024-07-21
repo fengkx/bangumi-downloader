@@ -64,7 +64,11 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       await this._ratelimitter();
       console.info(`Extracting info from ${title}`);
       const r = await this.model.invoke(prompt);
-      const result = JSON.parse(String(r.content)) as ResourceInfo;
+      let s = String(r.content);
+      s = s.trim();
+      const match = /```(json)?(.*)```/s.exec(s);
+      const jsonText = match ? match[2] : s;
+      const result = JSON.parse(jsonText) as ResourceInfo;
       if (result.cn_title && !title.includes(result.cn_title) && attempt < 3) {
         throw new Error(`${result.cn_title} is not existed in ${title}`);
       }
