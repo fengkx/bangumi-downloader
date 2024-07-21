@@ -59,7 +59,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       return cached.value as ResourceInfo;
     }
     const prompt = await this.chatPrompt.formatMessages({ title });
-    let jsonText;
+    let jsonText = '';
 
     const r = await retry(async (_b, attempt) => {
       await this._ratelimitter();
@@ -79,7 +79,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       retries: 5,
       onRetry(e, attempt) {
         console.info(
-          `[Retries ${attempt}] extracting ${title} | Cause: ${e.message} | ${jsonText}`,
+          `[Retries ${attempt}] extracting ${title} | Cause: ${e.message}${jsonText && `| ${jsonText}`}`,
         );
       },
     });
