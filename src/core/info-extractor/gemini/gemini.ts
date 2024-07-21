@@ -69,6 +69,7 @@ export class GeminiExtractor extends BaseExtractor implements Extractor {
       s = s.trim();
       const match = /```(json)?(.*)```/s.exec(s);
       jsonText = match ? match[2] : s;
+      console.debug(`maybe JSON: ${s}`)
       const result = JSON.parse(jsonText) as ResourceInfo;
       if (result.cn_title && !title.includes(result.cn_title) && attempt < 3) {
         throw new Error(`${result.cn_title} is not existed in ${title}`);
