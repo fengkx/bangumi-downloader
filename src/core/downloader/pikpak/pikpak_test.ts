@@ -8,6 +8,7 @@ const pikpak = new PikPakClient(
 );
 await pikpak.init();
 
+await pikpak.listFiles()
 // const taskId = "VNvITSv3E-aRcXAAO-pgxi9Ro1";
 // const task = await pikpak.getTask(taskId);
 // console.log(task);

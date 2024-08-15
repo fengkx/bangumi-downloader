@@ -79,7 +79,11 @@ export class PikPakClient implements Downloader {
             if (
               url.pathname.startsWith("/drive/v1")
             ) {
-              await this.getcaptcha_token("POST:" + url.pathname);
+              await this.getcaptcha_token("POST:" + url.pathname, {
+                "client_version": this.client_version,
+                "package_name": this.package_name,
+                "user_id": this.sub,
+              });
             }
             this.deviceId && request.headers.set("x-device-id", this.deviceId);
             this.captcha_token &&
