@@ -54,16 +54,16 @@ export class PikPakClient implements Downloader {
     this.clientSecret = "dbw2OtmVEeuUvIptb1Coyg";
     this.pikpakUserHost = "https://user.mypikpak.com";
     this.pikpakDriveHost = "https://api-drive.mypikpak.com" as const;
-    this.package_name = "mypikpak.com";
+    this.package_name = "com.pikcloud.pikpak";
     this.captcha_token = "";
-    this.client_version = "1.47.1";
+    this.client_version = "1.46.2";
 
     this.username = username;
     this.password = password;
     this.access_token = "";
     this.refresh_token = "";
     this.sub = "";
-    this.deviceId = crypto.createHash("md5").update(username).digest(
+    this.deviceId = crypto.createHash("md5").update(username + password).digest(
       "hex",
     ) as string;
     this.client = ky.create({
@@ -79,11 +79,7 @@ export class PikPakClient implements Downloader {
             if (
               url.pathname.startsWith("/drive/v1")
             ) {
-              await this.getcaptcha_token("POST:" + url.pathname, {
-                "client_version": this.client_version,
-                "package_name": this.package_name,
-                "user_id": this.sub,
-              });
+              await this.getcaptcha_token("POST:" + url.pathname);
             }
             this.deviceId && request.headers.set("x-device-id", this.deviceId);
             this.captcha_token &&
