@@ -26,21 +26,15 @@ export class PikPakClient implements Downloader {
   private package_name: string;
   private client_version: string;
   private algoObjects = [
-    { alg: "md5", salt: "Gez0T9ijiI9WCeTsKSg3SMlx" },
-    { alg: "md5", salt: "zQdbalsolyb1R/" },
-    { alg: "md5", salt: "ftOjr52zt51JD68C3s" },
-    { alg: "md5", salt: "yeOBMH0JkbQdEFNNwQ0RI9T3wU/v" },
-    { alg: "md5", salt: "BRJrQZiTQ65WtMvwO" },
-    { alg: "md5", salt: "je8fqxKPdQVJiy1DM6Bc9Nb1" },
-    { alg: "md5", salt: "niV" },
-    { alg: "md5", salt: "9hFCW2R1" },
-    { alg: "md5", salt: "sHKHpe2i96" },
-    { alg: "md5", salt: "p7c5E6AcXQ/IJUuAEC9W6" },
-    { alg: "md5", salt: "" },
-    { alg: "md5", salt: "aRv9hjc9P+Pbn+u3krN6" },
-    { alg: "md5", salt: "BzStcgE8qVdqjEH16l4" },
-    { alg: "md5", salt: "SqgeZvL5j9zoHP95xWHt" },
-    { alg: "md5", salt: "zVof5yaJkPe3VFpadPof" },
+    "PAe56I7WZ6FCSkFy77A96jHWcQA27ui80Qy4",
+    "SUbmk67TfdToBAEe2cZyP8vYVeN",
+    "1y3yFSZVWiGN95fw/2FQlRuH/Oy6WnO",
+    "8amLtHJpGzHPz4m9hGz7r+i+8dqQiAk",
+    "tmIEq5yl2g/XWwM3sKZkY4SbL8YUezrvxPksNabUJ",
+    "4QvudeJwgJuSf/qb9/wjC21L5aib",
+    "D1RJd+FZ+LBbt+dAmaIyYrT9gxJm0BB",
+    "1If",
+    "iGZr/SJPUFRkwvC174eelKy",
   ];
   private pikpakDriveHost: string;
   private username: string;
@@ -53,19 +47,17 @@ export class PikPakClient implements Downloader {
   private readonly pikpakUserHost: string;
   private captcha_token: string;
 
-
   private readonly _lock = new Map<string, Sema>();
 
   constructor(username: string, password: string) {
-    this.clientId = "YUMx5nI8ZU8Ap8pm";
-    this.clientSecret = "dbw2OtmVEeuUvIptb1Coygx";
+    this.clientId = "YNxT9w7GMdWvEOKa";
+    this.clientSecret = "dbw2OtmVEeuUvIptb1Coyg";
     this.pikpakUserHost = "https://user.mypikpak.com";
     this.pikpakDriveHost = "https://api-drive.mypikpak.com" as const;
     this.package_name = "mypikpak.com";
     this.captcha_token = "";
     this.client_version = "1.47.1";
-    
-    
+
     this.username = username;
     this.password = password;
     this.access_token = "";
@@ -121,14 +113,14 @@ export class PikPakClient implements Downloader {
 
   async login() {
     const url = `${this.pikpakUserHost}/v1/auth/signin`;
-    
+
     const meta: Record<string, string> = {};
-    if(this.username.includes('@')) {
-      meta['email'] = this.username;
-    } else if(/\d{10}/.test(this.username)) {
-      meta['phone_number'] = this.username
+    if (this.username.includes("@")) {
+      meta["email"] = this.username;
+    } else if (/\d{10}/.test(this.username)) {
+      meta["phone_number"] = this.username;
     } else {
-      meta['username'] = this.username;
+      meta["username"] = this.username;
     }
     const captcha_token = await this.getcaptcha_token(`POST:${url}`, meta);
     const req = {
@@ -136,7 +128,7 @@ export class PikPakClient implements Downloader {
       client_secret: this.clientSecret,
       username: this.username,
       password: this.password,
-      captcha_token
+      captcha_token,
     };
 
     try {
@@ -170,7 +162,7 @@ export class PikPakClient implements Downloader {
         json: req,
       });
     } catch (error) {
-      console.error(error)
+      console.error(error);
       throw new Error("Logout failed", { cause: error });
     }
   }
@@ -181,13 +173,12 @@ export class PikPakClient implements Downloader {
       this.deviceId + ts;
 
     for (const algo of this.algoObjects) {
-      sign = crypto.createHash("md5").update(sign + algo.salt).digest(
+      sign = crypto.createHash("md5").update(sign + algo).digest(
         "hex",
       ) as string;
     }
 
     sign = "1." + sign;
-
 
     const meta: Record<string, string> = inputMeta ?? {
       captcha_sign: sign,
@@ -196,7 +187,6 @@ export class PikPakClient implements Downloader {
       timestamp: ts,
       user_id: this.sub,
     };
-    
 
     const req = {
       action: action,
