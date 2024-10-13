@@ -9,6 +9,7 @@ export default defineConfig({
     "https://mikanani.me/RSS/Bangumi?bangumiId=3330&subgroupid=44",
     "https://mikanani.me/RSS/Bangumi?bangumiId=3341&subgroupid=370",
     "https://mikanani.me/RSS/Bangumi?bangumiId=3391&subgroupid=583",
+    "https://mikanani.me/RSS/Bangumi?bangumiId=3464&subgroupid=583",
   ],
   feed_concurrency: 4,
   job_concurrency: 8,
